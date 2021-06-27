@@ -19,18 +19,24 @@ namespace RabbitMQWalkthrough.Core.Queue
         public string ConsumerTag { get; private set; }
 
 
-        public Consumer(IModel model, string queue)
+        public Consumer(IModel model, string queue, int messagesPerSecond)
         {
             this.model = model;
             this.queue = queue;
+            this.MessagesPerSecond = messagesPerSecond;
+            this.Id = Guid.NewGuid().ToString("D");
 
             this.eventingBasicConsumer = new AsyncEventingBasicConsumer(model);
             this.eventingBasicConsumer.Received += this.OnMessage;
         }
 
+        public int MessagesPerSecond { get; }
+
+        public string Id { get; }
+
         private Task OnMessage(object sender, BasicDeliverEventArgs e)
         {
-            TimeSpan.FromMilliseconds(500).Wait();
+            this.MessagesPerSecond.AsMessageRateToSleepTimeSpan().Wait();
 
             Message message = e.Body.ToArray().ToUTF8String().Deserialize<Message>();
 
@@ -52,7 +58,13 @@ namespace RabbitMQWalkthrough.Core.Queue
         public Consumer Stop()
         {
             if (!string.IsNullOrWhiteSpace(this.ConsumerTag))
+            {
                 this.model.BasicCancel(this.ConsumerTag);
+
+                this.model.Close();
+
+                this.model.Dispose();
+            }
 
             return this;
         }

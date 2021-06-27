@@ -20,15 +20,27 @@ namespace WebApplicationEntrypoint.Controllers
         }
 
         [HttpPut]
-        public void AddPublisher()
+        public void AddPublisher([FromQuery]int size, [FromQuery] int messagesPerSecond)
         {
-            publisherManager.AddPublisher();
+            publisherManager.AddPublisher(size, messagesPerSecond);
         }
 
         [HttpDelete]
         public void RemovePublisher()
         {
             publisherManager.RemovePublisher();
+        }
+
+        [HttpDelete("/{id}")]
+        public void RemovePublisher(string id)
+        {
+            publisherManager.RemovePublisher(id);
+        }
+
+        [HttpGet()]
+        public IEnumerable<Publisher> GetPublishers()
+        {
+            return publisherManager.Publishers;
         }
     }
 }

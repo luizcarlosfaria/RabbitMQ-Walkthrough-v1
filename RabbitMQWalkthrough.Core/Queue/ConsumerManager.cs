@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
+using System.Linq;
 
 namespace RabbitMQWalkthrough.Core.Queue
 {
@@ -16,12 +17,14 @@ namespace RabbitMQWalkthrough.Core.Queue
             this.serviceProvider = serviceProvider;
         }
 
-        public int ConsumerCount => this.consumers.Count;
+        public IEnumerable<Consumer> Consumers => this.consumers;
 
 
-        public void AddConsumer()
+        public void AddConsumer(int size, int messagesPerSecond)
         {
-            consumers.Enqueue(new Consumer(serviceProvider.GetRequiredService<IModel>(), "test_queue").Start());
+            if (size > 0)
+                for (var i = 1; i <= size; i++)
+                    consumers.Enqueue(new Consumer(serviceProvider.GetRequiredService<IModel>(), "test_queue", messagesPerSecond).Start());
         }
 
 
@@ -29,6 +32,21 @@ namespace RabbitMQWalkthrough.Core.Queue
         {
             if (consumers.Count > 0)
                 consumers.Dequeue().Stop();
+        }
+
+        public void RemoveConsumer(string id)
+        {
+            if (consumers.Count > 0)
+            {
+                var consumer = consumers.SingleOrDefault(it => it.Id == id);
+                if (consumer != null)
+                {
+                    var otherConsumers = consumers.Where(it => it.Id != id).ToList();
+                    consumers.Clear();
+                    otherConsumers.ForEach(consumers.Enqueue);
+                    consumer.Stop();
+                }
+            }
         }
     }
 }

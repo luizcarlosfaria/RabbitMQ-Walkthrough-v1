@@ -20,15 +20,27 @@ namespace WebApplicationEntrypoint.Controllers
         }
 
         [HttpPut]
-        public void AddConsumer()
+        public void AddConsumer([FromQuery] int size, [FromQuery] int messagesPerSecond)
         {
-            consumerManager.AddConsumer();
+            consumerManager.AddConsumer(size, messagesPerSecond);
         }
 
         [HttpDelete]
         public void RemoveConsumer()
         {
             consumerManager.RemoveConsumer();
+        }
+
+        [HttpDelete("{id}")]
+        public void RemoveConsumer(string id)
+        {
+            consumerManager.RemoveConsumer(id);
+        }
+
+        [HttpGet()]
+        public IEnumerable<Consumer> GetConsumer()
+        {
+            return consumerManager.Consumers;
         }
     }
 }

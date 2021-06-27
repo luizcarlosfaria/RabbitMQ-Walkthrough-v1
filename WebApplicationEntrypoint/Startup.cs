@@ -28,21 +28,21 @@ namespace WebApplicationEntrypoint
         {
             services.AddControllersWithViews();
 
-            //services.AddSingleton(sp => new ConnectionFactory() { Uri = new Uri("amqp://WalkthroughUser:WalkthroughPassword@rabbitmq/Walkthrough"), DispatchConsumersAsync = true, ConsumerDispatchConcurrency = 10 });
+            services.AddSingleton(sp => new ConnectionFactory() { Uri = new Uri("amqp://WalkthroughUser:WalkthroughPassword@rabbitmq/Walkthrough"), DispatchConsumersAsync = true, ConsumerDispatchConcurrency = 10 });
 
-            //services.AddTransient(sp => sp.GetRequiredService<ConnectionFactory>().CreateConnection());
+            services.AddTransient(sp => sp.GetRequiredService<ConnectionFactory>().CreateConnection());
 
-            //services.AddTransient(sp => sp.GetRequiredService<IConnection>().CreateModel().SetPrefetchCount(10));
+            services.AddTransient(sp => sp.GetRequiredService<IConnection>().CreateModel().SetPrefetchCount(10));
 
-            //services.AddSingleton<ConsumerManager>();
-            //services.AddSingleton<PublisherManager>();
+            services.AddSingleton<ConsumerManager>();
+            services.AddSingleton<PublisherManager>();
 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            //InitRabbitMQ(app);
+            InitRabbitMQ(app);
 
             if (env.IsDevelopment())
             {

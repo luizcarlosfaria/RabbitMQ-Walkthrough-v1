@@ -17,12 +17,14 @@ namespace RabbitMQWalkthrough.Core.Queue
             this.serviceProvider = serviceProvider;
         }
 
-        public int PublisherCount => this.publishers.Count;
+        public IEnumerable<Publisher> Publishers => this.publishers;
 
 
-        public void AddPublisher()
+        public void AddPublisher(int size, int messagesPerSecond)
         {
-            publishers.Enqueue(new Publisher(serviceProvider.GetRequiredService<IModel>(), "test_exchange").Start());
+            if (size > 0)
+                for (var i = 1; i <= size; i++)
+                    publishers.Enqueue(new Publisher(serviceProvider.GetRequiredService<IModel>(), "test_exchange", messagesPerSecond).Start());
         }
 
 
@@ -30,6 +32,21 @@ namespace RabbitMQWalkthrough.Core.Queue
         {
             if (publishers.Count > 0)
                 publishers.Dequeue().Stop();
+        }
+
+        public void RemovePublisher(string id)
+        {
+            if (publishers.Count > 0)
+            {
+                var publisher = publishers.SingleOrDefault(it => it.Id == id);
+                if (publisher != null)
+                {
+                    var otherPublishers = publishers.Where(it => it.Id != id).ToList();
+                    publishers.Clear();
+                    otherPublishers.ForEach(publishers.Enqueue);
+                    publisher.Stop();
+                }
+            }
         }
     }
 }

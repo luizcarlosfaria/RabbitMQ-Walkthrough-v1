@@ -18,12 +18,17 @@ namespace RabbitMQWalkthrough.Core.Queue
         private readonly string exchange;
         private CancellationTokenSource cancellationToken = new CancellationTokenSource();
 
-        public Publisher(IModel model, string exchange)
+        public Publisher(IModel model, string exchange, int messagesPerSecond)
         {
             this.model = model;
             this.exchange = exchange;
-
+            this.MessagesPerSecond = messagesPerSecond;
+            this.Id = Guid.NewGuid().ToString("D");
         }
+
+        public int MessagesPerSecond { get; }
+
+        public string Id { get; }
 
         public Publisher Start()
         {
@@ -31,7 +36,7 @@ namespace RabbitMQWalkthrough.Core.Queue
             {
                 while (!cancellationToken.Token.IsCancellationRequested)
                 {
-                    TimeSpan.FromMilliseconds(500).Wait();
+                    this.MessagesPerSecond.AsMessageRateToSleepTimeSpan().Wait();
 
                     var message = new Message()
                     {
@@ -49,6 +54,11 @@ namespace RabbitMQWalkthrough.Core.Queue
         public Publisher Stop()
         {
             this.cancellationToken.Cancel();
+
+            this.model.Close();
+
+            this.model.Dispose();
+
             return this;
         }
 
