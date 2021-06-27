@@ -1,0 +1,20 @@
+version: '3.4'
+
+services:
+  webapplicationentrypoint:
+    image: ${DOCKER_REGISTRY-}webapplicationentrypoint
+    build:
+      context: .
+      dockerfile: WebApplicationEntrypoint/Dockerfile
+    environment: {
+            "TZ": "America/Sao_Paulo"
+    }
+    networks:
+    - walkthrough-net
+
+
+
+
+networks:
+  walkthrough-net:
+    driver: bridge
