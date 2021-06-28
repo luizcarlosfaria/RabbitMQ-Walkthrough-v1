@@ -36,7 +36,8 @@ namespace RabbitMQWalkthrough.Core.Queue
 
         private Task OnMessage(object sender, BasicDeliverEventArgs e)
         {
-            this.MessagesPerSecond.AsMessageRateToSleepTimeSpan().Wait();
+            if (this.MessagesPerSecond != 1000)
+                this.MessagesPerSecond.AsMessageRateToSleepTimeSpan().Wait();
 
             Message message = e.Body.ToArray().ToUTF8String().Deserialize<Message>();
 
@@ -44,12 +45,16 @@ namespace RabbitMQWalkthrough.Core.Queue
 
             //Console.WriteLine(message.Serialize());
 
-            this.model.BasicAck(e.DeliveryTag, false);
+            if (this.model.IsOpen)
+                this.model.BasicAck(e.DeliveryTag, false);
+
             return Task.CompletedTask;
         }
 
         public Consumer Start()
         {
+            this.model.SetPrefetchCount((ushort)(this.MessagesPerSecond * 4));
+
             this.ConsumerTag = this.model.BasicConsume(this.queue, false, this.eventingBasicConsumer);
 
             return this;

@@ -12,6 +12,8 @@ namespace RabbitMQWalkthrough.Core.Architecture
 
         public static void ReliablePublish<T>(this IModel model, T objectToPublish, string exchange, string routingKey)
         {
+            if (model.IsOpen == false) return;
+
             var body = objectToPublish.Serialize().ToByteArray().ToReadOnlyMemory();
 
             var basicProperties = model.CreateBasicProperties();

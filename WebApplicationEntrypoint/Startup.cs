@@ -28,11 +28,11 @@ namespace WebApplicationEntrypoint
         {
             services.AddControllersWithViews();
 
-            services.AddSingleton(sp => new ConnectionFactory() { Uri = new Uri("amqp://WalkthroughUser:WalkthroughPassword@rabbitmq/Walkthrough"), DispatchConsumersAsync = true, ConsumerDispatchConcurrency = 10 });
+            services.AddSingleton(sp => new ConnectionFactory() { Uri = new Uri("amqp://WalkthroughUser:WalkthroughPassword@localhost/Walkthrough"), DispatchConsumersAsync = true, ConsumerDispatchConcurrency = 10 });
 
             services.AddTransient(sp => sp.GetRequiredService<ConnectionFactory>().CreateConnection());
 
-            services.AddTransient(sp => sp.GetRequiredService<IConnection>().CreateModel().SetPrefetchCount(10));
+            services.AddTransient(sp => sp.GetRequiredService<IConnection>().CreateModel());
 
             services.AddSingleton<ConsumerManager>();
             services.AddSingleton<PublisherManager>();

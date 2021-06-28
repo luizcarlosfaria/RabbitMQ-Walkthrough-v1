@@ -36,7 +36,8 @@ namespace RabbitMQWalkthrough.Core.Queue
             {
                 while (!cancellationToken.Token.IsCancellationRequested)
                 {
-                    this.MessagesPerSecond.AsMessageRateToSleepTimeSpan().Wait();
+                    if (this.MessagesPerSecond != 1000)
+                        this.MessagesPerSecond.AsMessageRateToSleepTimeSpan().Wait();
 
                     var message = new Message()
                     {

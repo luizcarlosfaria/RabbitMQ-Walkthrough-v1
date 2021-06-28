@@ -31,7 +31,7 @@ namespace WebApplicationEntrypoint.Controllers
             publisherManager.RemovePublisher();
         }
 
-        [HttpDelete("/{id}")]
+        [HttpDelete("{id}")]
         public void RemovePublisher(string id)
         {
             publisherManager.RemovePublisher(id);
