@@ -15,7 +15,7 @@ namespace RabbitMQWalkthrough.Core.Queue
     {
         private readonly IModel model;
         private readonly string queue;
-        private AsyncEventingBasicConsumer eventingBasicConsumer;
+        private EventingBasicConsumer eventingBasicConsumer;
         public string ConsumerTag { get; private set; }
 
 
@@ -26,7 +26,7 @@ namespace RabbitMQWalkthrough.Core.Queue
             this.MessagesPerSecond = messagesPerSecond;
             this.Id = Guid.NewGuid().ToString("D");
 
-            this.eventingBasicConsumer = new AsyncEventingBasicConsumer(model);
+            this.eventingBasicConsumer = new EventingBasicConsumer(model);
             this.eventingBasicConsumer.Received += this.OnMessage;
         }
 
@@ -34,7 +34,7 @@ namespace RabbitMQWalkthrough.Core.Queue
 
         public string Id { get; }
 
-        private Task OnMessage(object sender, BasicDeliverEventArgs e)
+        private void OnMessage(object sender, BasicDeliverEventArgs e)
         {
             if (this.MessagesPerSecond != 1000)
                 this.MessagesPerSecond.AsMessageRateToSleepTimeSpan().Wait();
@@ -48,7 +48,7 @@ namespace RabbitMQWalkthrough.Core.Queue
             if (this.model.IsOpen)
                 this.model.BasicAck(e.DeliveryTag, false);
 
-            return Task.CompletedTask;
+            //return Task.CompletedTask;
         }
 
         public Consumer Start()

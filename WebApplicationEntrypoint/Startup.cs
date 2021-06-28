@@ -28,7 +28,12 @@ namespace WebApplicationEntrypoint
         {
             services.AddControllersWithViews();
 
-            services.AddSingleton(sp => new ConnectionFactory() { Uri = new Uri("amqp://WalkthroughUser:WalkthroughPassword@localhost/Walkthrough"), DispatchConsumersAsync = true, ConsumerDispatchConcurrency = 10 });
+            services.AddSingleton(sp => new ConnectionFactory() { 
+                Uri = new Uri("amqp://WalkthroughUser:WalkthroughPassword@localhost/Walkthrough"), 
+                DispatchConsumersAsync = false, 
+                ConsumerDispatchConcurrency = 10,
+                UseBackgroundThreadsForIO = true
+            });
 
             services.AddTransient(sp => sp.GetRequiredService<ConnectionFactory>().CreateConnection());
 

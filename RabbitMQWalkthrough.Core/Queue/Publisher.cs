@@ -16,7 +16,8 @@ namespace RabbitMQWalkthrough.Core.Queue
     {
         private readonly IModel model;
         private readonly string exchange;
-        private CancellationTokenSource cancellationToken = new CancellationTokenSource();
+        private Thread runThread;
+        private volatile bool isRunning;
 
         public Publisher(IModel model, string exchange, int messagesPerSecond)
         {
@@ -24,6 +25,34 @@ namespace RabbitMQWalkthrough.Core.Queue
             this.exchange = exchange;
             this.MessagesPerSecond = messagesPerSecond;
             this.Id = Guid.NewGuid().ToString("D");
+
+            model.ConfirmSelect();
+
+            this.runThread = new Thread(() =>
+            {
+                long count = 0;
+                while (this.isRunning)
+                {
+                    count++;
+
+                    if (this.MessagesPerSecond != 1000)
+                        this.MessagesPerSecond.AsMessageRateToSleepTimeSpan().Wait();
+                   
+
+                    var message = new Message()
+                    {
+                        Created = DateTime.Now,
+                        MessageId = $"{this.Id}-{count}"
+                    };
+
+                    model.ReliablePublish(message, this.exchange, string.Empty);
+
+                }
+
+                this.model.Close();
+
+                this.model.Dispose();
+            });
         }
 
         public int MessagesPerSecond { get; }
@@ -32,33 +61,14 @@ namespace RabbitMQWalkthrough.Core.Queue
 
         public Publisher Start()
         {
-            Task.Run(() =>
-            {
-                while (!cancellationToken.Token.IsCancellationRequested)
-                {
-                    if (this.MessagesPerSecond != 1000)
-                        this.MessagesPerSecond.AsMessageRateToSleepTimeSpan().Wait();
-
-                    var message = new Message()
-                    {
-                        Created = DateTime.Now
-                    };
-
-                    model.ReliablePublish(message, this.exchange, string.Empty);
-
-                }
-
-            }, cancellationToken.Token);
+            this.isRunning = true;
+            this.runThread.Start();
             return this;
         }
 
         public Publisher Stop()
         {
-            this.cancellationToken.Cancel();
-
-            this.model.Close();
-
-            this.model.Dispose();
+            this.isRunning = false;
 
             return this;
         }

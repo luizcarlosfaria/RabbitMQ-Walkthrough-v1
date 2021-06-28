@@ -14,7 +14,7 @@ namespace RabbitMQWalkthrough.Core.Architecture
         public static void Wait(this TimeSpan time)
         {
             var are = new AutoResetEvent(false);
-            bool waitRes = are.WaitOne(time);
+            are.WaitOne(time);
         }
 
     }

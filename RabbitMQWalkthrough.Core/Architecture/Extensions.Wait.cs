@@ -23,14 +23,16 @@ namespace RabbitMQWalkthrough.Core.Architecture
             model.BasicPublish(
                 exchange: exchange,
                 routingKey: routingKey,
+                mandatory: true,
                 basicProperties: basicProperties,
                 body: body);
 
+            model.WaitForConfirmsOrDie(TimeSpan.FromSeconds(5));
         }
 
         public static IModel SetPrefetchCount(this IModel model, ushort prefetchCount)
         {
-            model.BasicQos(0, prefetchCount, false); 
+            model.BasicQos(0, prefetchCount, false);
             return model;
         }
 

@@ -8,6 +8,8 @@ namespace RabbitMQWalkthrough.Core.Model
 {
     public class Message
     {
+        public string MessageId { get; set; }
+
         /// <summary>
         /// Quando foi criada na API
         /// </summary>
