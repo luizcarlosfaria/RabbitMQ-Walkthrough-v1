@@ -4,17 +4,17 @@
 
 
 <!--
-  This example requires Tailwind CSS v2.0+ 
+  This example requires Tailwind CSS v2.0+
 
   This example requires some changes to your config:
 
   ```
   // tailwind.config.js
   module.exports = {
-    // ...
-    plugins: [
-      // ...
-    ]
+	// ...
+	plugins: [
+	  // ...
+	]
   }
   ```
 -->
@@ -81,127 +81,126 @@
 
 		<dl class="mt-5 grid grid-cols-2 gap-5">
 			<div class="relative bg-white pt-5 px-4 pb-12 sm:pt-6 sm:px-6 shadow rounded-lg overflow-hidden border-2 border-red-600">
-				<dt>
-					<div class="absolute bg-red-600 rounded-md p-3">
-						<!-- Heroicon name: outline/users -->
-						<svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-						</svg>
-					</div>
-					<p class="ml-16 text-sm font-medium text-gray-500 truncate">Total de Workloads</p>
-				</dt>
-				<dd class="ml-16 pb-6 flex items-baseline sm:pb-7">
-					<p class="text-2xl font-semibold text-gray-900">
-						{{consumers.length}}
-					</p>
+			<dt>
+				<div class="absolute bg-red-600 rounded-md p-3">
+					<!-- Heroicon name: outline/users -->
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+					</svg>
+				</div>
+				<p class="ml-16 text-sm font-medium text-gray-500 truncate">Workers (Qtd)</p>
+			</dt>
+			<dd class="ml-16 pb-6 flex items-baseline sm:pb-7">
+				<p class="text-2xl font-semibold text-gray-900">
+					{{consumers.length}}
+				</p>
 				@* 	<p class="ml-2 flex items-baseline text-sm font-semibold text-green-600">
-						<svg class="self-center flex-shrink-0 h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-							<path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-						</svg>
-						<span class="sr-only">
-							Increased by
-						</span>
-						122
-					</p> 
-					<div class="absolute bottom-0 inset-x-0 bg-gray-50 px-4 py-4 sm:px-6">
-						<div class="text-sm">
-							<a href="#" class="font-medium text-indigo-600 hover:text-indigo-500"> View all<span class="sr-only"> Total Subscribers stats</span></a>
-						</div>
-					</div>*@
-				</dd>
+		<svg class="self-center flex-shrink-0 h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+		<path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+		</svg>
+		<span class="sr-only">
+		Increased by
+		</span>
+		122
+		</p>
+		<div class="absolute bottom-0 inset-x-0 bg-gray-50 px-4 py-4 sm:px-6">
+		<div class="text-sm">
+		<a href="#" class="font-medium text-indigo-600 hover:text-indigo-500"> View all<span class="sr-only"> Total Subscribers stats</span></a>
+		</div>
+		</div>*@
+			</dd>
+	</div>
+
+	<div class="relative bg-white pt-5 px-4 pb-12 sm:pt-6 sm:px-6 shadow rounded-lg overflow-hidden border-2 border-red-600">
+		<dt>
+			<div class="absolute bg-red-600 rounded-md p-3">
+				<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+				</svg>
 			</div>
-
-			<div class="relative bg-white pt-5 px-4 pb-12 sm:pt-6 sm:px-6 shadow rounded-lg overflow-hidden border-2 border-red-600">
-				<dt>
-					<div class="absolute bg-red-600 rounded-md p-3">
-						<!-- Heroicon name: outline/mail-open -->
-						<svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
-						</svg>
-					</div>
-					<p class="ml-16 text-sm font-medium text-gray-500 truncate">Avg. Open Rate</p>
-				</dt>
-				<dd class="ml-16 pb-6 flex items-baseline sm:pb-7">
-					<p class="text-2xl font-semibold text-gray-900">
-						{{total}}
-					</p>
-					@* <p class="ml-2 flex items-baseline text-sm font-semibold text-green-600">
-						<!-- Heroicon name: solid/arrow-sm-up -->
-						<svg class="self-center flex-shrink-0 h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-							<path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-						</svg>
-						<span class="sr-only">
-							Increased by
-						</span>
-						5.4%
-					</p>
-					<div class="absolute bottom-0 inset-x-0 bg-gray-50 px-4 py-4 sm:px-6">
-						<div class="text-sm">
-							<a href="#" class="font-medium text-indigo-600 hover:text-indigo-500"> View all<span class="sr-only"> Avg. Open Rate stats</span></a>
-						</div>
-					</div> *@
-				</dd>
-			</div>
-
-
-		</dl>
+			<p class="ml-16 text-sm font-medium text-gray-500 truncate">Capacidade de Consumo (Msg/s)</p>
+		</dt>
+		<dd class="ml-16 pb-6 flex items-baseline sm:pb-7">
+			<p class="text-2xl font-semibold text-gray-900">
+				{{total}}
+			</p>
+			@* <p class="ml-2 flex items-baseline text-sm font-semibold text-green-600">
+   	<!-- Heroicon name: solid/arrow-sm-up -->
+   	<svg class="self-center flex-shrink-0 h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+   	<path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+   	</svg>
+   	<span class="sr-only">
+   	Increased by
+   	</span>
+   	5.4%
+   	</p>
+   	<div class="absolute bottom-0 inset-x-0 bg-gray-50 px-4 py-4 sm:px-6">
+   	<div class="text-sm">
+   	<a href="#" class="font-medium text-indigo-600 hover:text-indigo-500"> View all<span class="sr-only"> Avg. Open Rate stats</span></a>
+   	</div>
+   	</div> *@
+		</dd>
 	</div>
 
 
+	</dl>
+</div>
 
 
 
 
 
-	<!-- This example requires Tailwind CSS v2.0+ -->
-	<ul class="grid grid-cols-3 gap-6 mt-3" >
 
-		<li class="col-span-1 bg-white rounded-lg shadow divide-y divide-gray-200 border-2 border-red-600" ng-repeat="consumer in consumers" ng-cloak>
-			<div class="w-full flex items-center justify-between p-6 space-x-6">
-				 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-				</svg>
-				<div class="flex-1 truncate">
-					<div class="flex items-center space-x-3">
-						<h3 class="text-gray-900 text-sm font-medium truncate">Worker Process {{consumer.id.split('-')[0]}}</h3>
-					</div>
-					<p class="mt-1 text-gray-500 text-xs truncate ">{{consumer.id}}</p>
-					<p class="mt-1 text-gray-500 text-sm ">{{consumer.consumerTag}}</p>
+
+<!-- This example requires Tailwind CSS v2.0+ -->
+<ul class="grid grid-cols-3 gap-6 mt-3">
+
+	<li class="col-span-1 bg-white rounded-lg shadow divide-y divide-gray-200 border-2 border-red-600" ng-repeat="consumer in consumers" ng-cloak>
+		<div class="w-full flex items-center justify-between p-6 space-x-6">
+			<svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+			</svg>
+			<div class="flex-1 truncate">
+				<div class="flex items-center space-x-3">
+					<h3 class="text-gray-900 text-sm font-medium truncate">Worker Process {{consumer.id.split('-')[0]}}</h3>
 				</div>
-
-				
+				<p class="mt-1 text-gray-500 text-xs truncate ">{{consumer.id}}</p>
+				<p class="mt-1 text-gray-500 text-sm ">{{consumer.consumerTag}}</p>
 			</div>
-			<div>
-				<div class="-mt-px flex divide-x divide-gray-200">
-					<div class="w-0 flex-1 flex">
-						<a href="javascript:void(0)" class="relative -mr-px w-0 flex-1 inline-flex items-center justify-center py-4 text-sm text-gray-700 font-medium border border-transparent rounded-bl-lg hover:text-gray-500 opacity-0 hover:opacity-100" ng-click="deleteConsumer(consumer)">
-							<!-- Heroicon name: solid/mail -->
 
-							<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
-							</svg>
-							<span class="ml-3 text-red-600">Delete</span>
-						</a>
-					</div>
-					<div class="-ml-px w-0 flex-1 flex">
-						<a href="" class="relative w-0 flex-1 inline-flex items-center justify-center py-4 text-sm text-gray-700 font-medium border border-transparent rounded-br-lg hover:text-gray-500">
-							<!-- Heroicon name: solid/phone -->
-							<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-							</svg>
-							<span class="ml-3">{{consumer.messagesPerSecond}} m/s</span>
-						</a>
-					</div>
+
+		</div>
+		<div>
+			<div class="-mt-px flex divide-x divide-gray-200">
+				<div class="w-0 flex-1 flex">
+					<a href="javascript:void(0)" class="relative -mr-px w-0 flex-1 inline-flex items-center justify-center py-4 text-sm text-gray-700 font-medium border border-transparent rounded-bl-lg hover:text-gray-500 opacity-0 hover:opacity-100" ng-click="deleteConsumer(consumer)">
+						<!-- Heroicon name: solid/mail -->
+
+						<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+						</svg>
+						<span class="ml-3 text-red-600">Delete</span>
+					</a>
+				</div>
+				<div class="-ml-px w-0 flex-1 flex">
+					<a href="" class="relative w-0 flex-1 inline-flex items-center justify-center py-4 text-sm text-gray-700 font-medium border border-transparent rounded-br-lg hover:text-gray-500">
+						<!-- Heroicon name: solid/phone -->
+						<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+						</svg>
+						<span class="ml-3">{{consumer.messagesPerSecond}} m/s</span>
+					</a>
 				</div>
 			</div>
-		</li>
+		</div>
+	</li>
 
 
 
 
-		<!-- More people... -->
-	</ul>
+	<!-- More people... -->
+</ul>
 
 </div>
 @{

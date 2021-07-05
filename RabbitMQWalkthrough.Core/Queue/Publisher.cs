@@ -26,7 +26,7 @@ namespace RabbitMQWalkthrough.Core.Queue
             this.MessagesPerSecond = messagesPerSecond;
             this.Id = Guid.NewGuid().ToString("D");
 
-            model.ConfirmSelect();
+            //model.ConfirmSelect();
 
             this.runThread = new Thread(() =>
             {

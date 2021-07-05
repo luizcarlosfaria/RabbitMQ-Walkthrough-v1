@@ -29,10 +29,10 @@ namespace WebApplicationEntrypoint
             services.AddControllersWithViews();
 
             services.AddSingleton(sp => new ConnectionFactory() { 
-                Uri = new Uri("amqp://WalkthroughUser:WalkthroughPassword@localhost/Walkthrough"), 
+                Uri = new Uri("amqp://WalkthroughUser:WalkthroughPassword@rabbitmq/Walkthrough"), 
                 DispatchConsumersAsync = false, 
-                ConsumerDispatchConcurrency = 10,
-                UseBackgroundThreadsForIO = true
+                ConsumerDispatchConcurrency = 1,
+                //UseBackgroundThreadsForIO = true
             });
 
             services.AddTransient(sp => sp.GetRequiredService<ConnectionFactory>().CreateConnection());

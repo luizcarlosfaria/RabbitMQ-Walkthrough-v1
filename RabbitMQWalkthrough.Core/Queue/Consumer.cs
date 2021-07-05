@@ -53,7 +53,7 @@ namespace RabbitMQWalkthrough.Core.Queue
 
         public Consumer Start()
         {
-            this.model.SetPrefetchCount((ushort)(this.MessagesPerSecond * 4));
+            this.model.SetPrefetchCount((ushort)(this.MessagesPerSecond));
 
             this.ConsumerTag = this.model.BasicConsume(this.queue, false, this.eventingBasicConsumer);
 

@@ -6,7 +6,9 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "8877:80"
-
+    restart: always
+    depends_on: 
+      - rabbitmq
 
   rabbitmq:
     container_name: RabbitMQ
@@ -44,8 +46,8 @@ services:
         "MSSQL_PASSWORD" : "WalkthroughPass",
         "TZ": "America/Sao_Paulo"
       }
-      ports: 
-        - 1433:1433      
+      #ports: 
+      #  - 1433:1433      
       volumes:
         - sql_data:/var/opt/mssql/data
         - sql_log:/var/opt/mssql/log

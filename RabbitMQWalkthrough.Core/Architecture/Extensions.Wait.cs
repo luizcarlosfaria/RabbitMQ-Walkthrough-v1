@@ -3,38 +3,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RabbitMQWalkthrough.Core.Architecture
 {
     public static partial class Extensions
     {
-
-        public static void ReliablePublish<T>(this IModel model, T objectToPublish, string exchange, string routingKey)
+        public static void Wait(this TimeSpan time)        
         {
-            if (model.IsOpen == false) return;
+            //var are = new AutoResetEvent(false);
+            //are.WaitOne(time);
 
-            var body = objectToPublish.Serialize().ToByteArray().ToReadOnlyMemory();
-
-            var basicProperties = model.CreateBasicProperties();
-
-            basicProperties.DeliveryMode = 2;
-
-            model.BasicPublish(
-                exchange: exchange,
-                routingKey: routingKey,
-                mandatory: true,
-                basicProperties: basicProperties,
-                body: body);
-
-            model.WaitForConfirmsOrDie(TimeSpan.FromSeconds(5));
+            System.Threading.Thread.Sleep(time);
         }
 
-        public static IModel SetPrefetchCount(this IModel model, ushort prefetchCount)
-        {
-            model.BasicQos(0, prefetchCount, false);
-            return model;
-        }
 
     }
 }
