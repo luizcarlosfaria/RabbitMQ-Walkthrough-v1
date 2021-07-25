@@ -25,11 +25,7 @@ namespace WebApplicationEntrypoint.Controllers
             publisherManager.AddPublisher(size, messagesPerSecond);
         }
 
-        [HttpDelete]
-        public void RemovePublisher()
-        {
-            publisherManager.RemovePublisher();
-        }
+      
 
         [HttpDelete("{id}")]
         public void RemovePublisher(string id)

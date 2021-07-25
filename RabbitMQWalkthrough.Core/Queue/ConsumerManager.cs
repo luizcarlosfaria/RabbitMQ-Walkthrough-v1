@@ -28,11 +28,7 @@ namespace RabbitMQWalkthrough.Core.Queue
         }
 
 
-        public void RemoveConsumer()
-        {
-            if (consumers.Count > 0)
-                consumers.Dequeue().Stop();
-        }
+        
 
         public void RemoveConsumer(string id)
         {

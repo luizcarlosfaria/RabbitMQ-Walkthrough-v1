@@ -25,11 +25,7 @@ namespace WebApplicationEntrypoint.Controllers
             consumerManager.AddConsumer(size, messagesPerSecond);
         }
 
-        [HttpDelete]
-        public void RemoveConsumer()
-        {
-            consumerManager.RemoveConsumer();
-        }
+       
 
         [HttpDelete("{id}")]
         public void RemoveConsumer(string id)

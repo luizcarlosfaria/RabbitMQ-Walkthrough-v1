@@ -28,11 +28,6 @@ namespace RabbitMQWalkthrough.Core.Queue
         }
 
 
-        public void RemovePublisher()
-        {
-            if (publishers.Count > 0)
-                publishers.Dequeue().Stop();
-        }
 
         public void RemovePublisher(string id)
         {
