@@ -10,26 +10,20 @@ namespace RabbitMQWalkthrough.Core.Model
     {
         public string MessageId { get; set; }
 
-        /// <summary>
-        /// Quando foi criada na API
-        /// </summary>
-        public DateTime Created { get; set; }
 
         /// <summary>
         /// Quando foi processada
         /// </summary>
-        public DateTime Processed { get; set; }
+        public DateTimeOffset Processed { get; set; }
 
 
         /// <summary>
         /// Data do banco
         /// </summary>
-        public DateTime Stored { get; set; }
+        public DateTimeOffset Stored { get; set; }
 
         
-        public TimeSpan TimeSpentInQueue { get; set; }
-        public TimeSpan TimeSpentProcessing { get; set; }
-        public TimeSpan TimeSpent { get; set; }
+        public int TimeSpent { get; set; }
 
 
     }

@@ -74,7 +74,7 @@ namespace WebApplicationEntrypoint
             services.AddHostedService<MetricsWorker>();
 
 
-            services.AddSingleton(sp => {
+            services.AddTransient(sp => {
 
                 SqlConnection connection = null;
                 
@@ -85,7 +85,7 @@ namespace WebApplicationEntrypoint
 
                 policy.Execute(() =>
                 {
-                    connection = new SqlConnection("Server=sql,1433;Database=Walkthrough;User Id=WalkthroughUser;Password=WalkthroughPass");
+                    connection = new SqlConnection("Server=sql,1433;Database=Walkthrough;User Id=WalkthroughUser;Password=WalkthroughPass;MultipleActiveResultSets=true");
                     connection.Open();
                 });
 
@@ -120,7 +120,7 @@ namespace WebApplicationEntrypoint
             });
         }
 
-        private void InitRabbitMQ(IApplicationBuilder app)
+        private static void InitRabbitMQ(IApplicationBuilder app)
         {
             using var rabbitMQChannel = app.ApplicationServices.GetRequiredService<IModel>();
 

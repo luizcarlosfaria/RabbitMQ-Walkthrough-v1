@@ -1,10 +1,12 @@
 ﻿
+using Dapper;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQWalkthrough.Core.Architecture;
 using RabbitMQWalkthrough.Core.Model;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -16,14 +18,16 @@ namespace RabbitMQWalkthrough.Core.Queue
     {
         private readonly IModel model;
         private readonly IConnection connection;
+        private readonly SqlConnection sqlConnection;
         private readonly string exchange;
         private Thread runThread;
         private volatile bool isRunning;
 
-        public Publisher(IModel model, IConnection connection, string exchange, int messagesPerSecond)
+        public Publisher(IModel model, IConnection connection, SqlConnection sqlConnection, string exchange, int messagesPerSecond)
         {
             this.model = model;
             this.connection = connection;
+            this.sqlConnection = sqlConnection;
             this.exchange = exchange;
             this.MessagesPerSecond = messagesPerSecond;
             this.Id = Guid.NewGuid().ToString("D");
@@ -39,14 +43,20 @@ namespace RabbitMQWalkthrough.Core.Queue
 
                     count++;
 
-                    var message = new Message()
+                    using (var transaction = this.sqlConnection.BeginTransaction())
                     {
-                        Created = DateTime.Now,
-                        MessageId = $"{this.Id}-{count}"
-                    };
 
-                    model.ReliablePublish(message, this.exchange, string.Empty);
+                        string sql = @"
+                    INSERT INTO [dbo].[Messages] ([Stored],[Num])  VALUES (GETUTCDATE(),0); 
+                    
+                    SELECT * from [dbo].[Messages] where MessageId = SCOPE_IDENTITY();
+                    ";
+                        Message message = this.sqlConnection.QuerySingle<Message>(sql, new { Created = DateTime.Now }, transaction);
 
+                        model.ReliablePublish(message, this.exchange, string.Empty);
+
+                        transaction.Commit();
+                    }
                 }
 
                 this.model.Close();
@@ -56,6 +66,8 @@ namespace RabbitMQWalkthrough.Core.Queue
                 this.connection.Close();
 
                 this.connection.Dispose();
+
+                this.sqlConnection.Close();
             });
         }
 

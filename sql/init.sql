@@ -15,14 +15,11 @@ BEGIN TRANSACTION
 GO
 CREATE TABLE dbo.Messages
 	(
-	MessageId int NOT NULL IDENTITY (1, 1),
-	Created datetime2(7) NOT NULL, --Data de Criação em memória
-	Stored datetime2(7) NOT NULL, --Data de gravação no SQL Server
-	Processed datetime2(7) NULL, --Última data de processamento
+	MessageId int NOT NULL IDENTITY (1, 1),	
+	Stored datetimeoffset(7) NOT NULL, --Data de gravação no SQL Server
+	Processed datetimeoffset(7) NULL, --Última data de processamento
 
-	[TimeSpentInQueue]  AS (datediff(millisecond,[Created],[Processed])) PERSISTED,
-	[TimeSpentProcessing]  AS (datediff(millisecond,[Processed],[Stored])) PERSISTED,
-	[TimeSpent]  AS (datediff(millisecond,[Created],[Stored])) PERSISTED,
+	[TimeSpent]  AS (datediff(millisecond,[Stored],[Processed])) PERSISTED,
 
 	[Num] int NOT NULL
 
@@ -44,7 +41,7 @@ GO
 
 CREATE TABLE [dbo].[Metrics](
 	[MetricId] [int] IDENTITY(1,1) NOT NULL,
-	[Date] [datetime] NOT NULL,
+	[Date] [datetimeoffset] NOT NULL,
 	[WorkerCount] [int] NOT NULL,
 	[WorkLoadSize] [int] NOT NULL,
 	[ConsumerCount] [int] NOT NULL,

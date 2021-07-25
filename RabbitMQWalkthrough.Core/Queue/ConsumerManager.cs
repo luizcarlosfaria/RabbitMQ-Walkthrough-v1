@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
+using System.Data.SqlClient;
 
 namespace RabbitMQWalkthrough.Core.Queue
 {
@@ -22,13 +23,15 @@ namespace RabbitMQWalkthrough.Core.Queue
 
         public void AddConsumer(int size, int messagesPerSecond)
         {
+
+            
             if (size > 0)
                 for (var i = 1; i <= size; i++)
                 {
                     var connection = serviceProvider.GetRequiredService<IConnection>();
                     var model = connection.CreateModel();
-
-                    consumers.Enqueue(new Consumer(model, connection, "test_queue", messagesPerSecond).Start());
+                    var sqlConnection = serviceProvider.GetRequiredService<SqlConnection>();
+                    consumers.Enqueue(new Consumer(model, connection, sqlConnection, "test_queue", messagesPerSecond).Start());
                 }
         }
 

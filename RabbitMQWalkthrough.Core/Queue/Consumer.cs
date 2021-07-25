@@ -1,9 +1,11 @@
-﻿using RabbitMQ.Client;
+﻿using Dapper;
+using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQWalkthrough.Core.Architecture;
 using RabbitMQWalkthrough.Core.Model;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -15,15 +17,17 @@ namespace RabbitMQWalkthrough.Core.Queue
     {
         private readonly IModel model;
         private readonly IConnection connection;
+        private readonly SqlConnection sqlConnection;
         private readonly string queue;
         private EventingBasicConsumer eventingBasicConsumer;
         public string ConsumerTag { get; private set; }
 
 
-        public Consumer(IModel model, IConnection connection, string queue, int messagesPerSecond)
+        public Consumer(IModel model, IConnection connection, SqlConnection sqlConnection, string queue, int messagesPerSecond)
         {
             this.model = model;
             this.connection = connection;
+            this.sqlConnection = sqlConnection;
             this.queue = queue;
             this.MessagesPerSecond = messagesPerSecond;
             this.Id = Guid.NewGuid().ToString("D");
@@ -44,7 +48,9 @@ namespace RabbitMQWalkthrough.Core.Queue
 
             message.Processed = DateTime.Now;
 
-            //Console.WriteLine(message.Serialize());
+
+            string sql = @"update [dbo].[Messages] set [Processed] = GETUTCDATE(), [Num] = [Num]+1 where [MessageId] = @MessageId;";
+            this.sqlConnection.Execute(sql, message);
 
             if (this.model.IsOpen)
                 this.model.BasicAck(e.DeliveryTag, false);
@@ -76,6 +82,8 @@ namespace RabbitMQWalkthrough.Core.Queue
             this.connection.Close();
 
             this.connection.Dispose();
+
+            this.sqlConnection.Close();
 
             return this;
         }

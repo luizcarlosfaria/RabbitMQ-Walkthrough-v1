@@ -9,6 +9,8 @@ services:
     restart: always
     depends_on: 
       - rabbitmq
+      - grafana
+      - sql
 
   rabbitmq:
     container_name: RabbitMQ
@@ -32,6 +34,19 @@ services:
 #      RABBITMQ_DEFAULT_USER: WalkthroughUser
 #      RABBITMQ_DEFAULT_PASS: WalkthroughPassword
 #      RABBITMQ_DEFAULT_VHOST: Walkthrough
+
+
+  grafana:
+    image: grafana/grafana:8.0.5-ubuntu
+    environment: {
+      "TZ": "America/Sao_Paulo"
+    }
+    ports:
+      - "3000:3000"    
+    volumes:
+      - ./grafana/data/:/var/lib/grafana
+    networks:
+      - walkthrough-net
 
   sql:
       image: luizcarlosfaria/mssql-server-linux:2019-latest
