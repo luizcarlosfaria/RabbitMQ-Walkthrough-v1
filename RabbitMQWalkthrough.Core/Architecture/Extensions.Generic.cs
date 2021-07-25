@@ -13,7 +13,7 @@ namespace RabbitMQWalkthrough.Core.Architecture
 
         public static TimeSpan AsMessageRateToSleepTimeSpan(this int messagesPerSecond)
         {
-            if ((messagesPerSecond < 1) || (messagesPerSecond > 1000))
+            if (messagesPerSecond < 1)
                 throw new ArgumentOutOfRangeException(nameof(messagesPerSecond));
 
 
