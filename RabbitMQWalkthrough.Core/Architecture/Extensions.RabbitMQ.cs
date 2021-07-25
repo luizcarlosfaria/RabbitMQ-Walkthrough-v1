@@ -15,20 +15,24 @@ namespace RabbitMQWalkthrough.Core.Architecture
         {
             if (model.IsOpen == false) return;
 
-            var body = objectToPublish.Serialize().ToByteArray().ToReadOnlyMemory();
-
-            var basicProperties = model.CreateBasicProperties();
-
-            basicProperties.DeliveryMode = 2;
-
             model.BasicPublish(
                 exchange: exchange,
                 routingKey: routingKey,
                 mandatory: true,
-                basicProperties: basicProperties,
-                body: body);
+                basicProperties: model.CreatePersistentBasicProperties(),
+                body: objectToPublish.Serialize().ToByteArray().ToReadOnlyMemory());
 
             //model.WaitForConfirmsOrDie(TimeSpan.FromSeconds(5));
+        }
+
+        public static IBasicProperties CreatePersistentBasicProperties(this IModel model) => model.CreateBasicProperties().SetDeliveryMode(2);
+
+
+        public static IBasicProperties SetDeliveryMode(this IBasicProperties prop, byte deliveryMode)
+        {
+            prop.DeliveryMode = deliveryMode;
+
+            return prop;
         }
 
         public static IModel SetPrefetchCount(this IModel model, ushort prefetchCount)
