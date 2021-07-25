@@ -29,7 +29,7 @@ namespace WebApplicationEntrypoint.Workers
                 {
 
                     metricsService.CollectAndStore();
-                    await Task.Delay(5000, stoppingToken);
+                    await Task.Delay(1000, stoppingToken);
                 }
                 catch (OperationCanceledException)
                 {

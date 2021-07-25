@@ -70,7 +70,8 @@ namespace WebApplicationEntrypoint
             services.AddSingleton<IMetricCollector, QueueMetricCollector>();
             services.AddSingleton<IMetricCollector, PublisherMetricCollector>();
             services.AddSingleton<IMetricCollector, ConsumerMetricCollector>();
-            //services.AddHostedService<MetricsWorker>();
+            services.AddSingleton<IMetricCollector, CollectorFixer>();
+            services.AddHostedService<MetricsWorker>();
 
 
             services.AddSingleton(sp => {
