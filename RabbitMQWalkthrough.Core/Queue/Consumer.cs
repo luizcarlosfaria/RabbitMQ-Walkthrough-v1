@@ -14,14 +14,16 @@ namespace RabbitMQWalkthrough.Core.Queue
     public class Consumer
     {
         private readonly IModel model;
+        private readonly IConnection connection;
         private readonly string queue;
         private EventingBasicConsumer eventingBasicConsumer;
         public string ConsumerTag { get; private set; }
 
 
-        public Consumer(IModel model, string queue, int messagesPerSecond)
+        public Consumer(IModel model, IConnection connection, string queue, int messagesPerSecond)
         {
             this.model = model;
+            this.connection = connection;
             this.queue = queue;
             this.MessagesPerSecond = messagesPerSecond;
             this.Id = Guid.NewGuid().ToString("D");
@@ -52,7 +54,7 @@ namespace RabbitMQWalkthrough.Core.Queue
 
         public Consumer Start()
         {
-            this.model.SetPrefetchCount((ushort)(this.MessagesPerSecond*4));
+            this.model.SetPrefetchCount((ushort)(this.MessagesPerSecond * 20));
 
             this.ConsumerTag = this.model.BasicConsume(this.queue, false, this.eventingBasicConsumer);
 
@@ -61,14 +63,19 @@ namespace RabbitMQWalkthrough.Core.Queue
 
         public Consumer Stop()
         {
+
             if (!string.IsNullOrWhiteSpace(this.ConsumerTag))
             {
                 this.model.BasicCancel(this.ConsumerTag);
-
-                this.model.Close();
-
-                this.model.Dispose();
             }
+
+            this.model.Close();
+
+            this.model.Dispose();
+
+            this.connection.Close();
+
+            this.connection.Dispose();
 
             return this;
         }

@@ -24,11 +24,16 @@ namespace RabbitMQWalkthrough.Core.Queue
         {
             if (size > 0)
                 for (var i = 1; i <= size; i++)
-                    consumers.Enqueue(new Consumer(serviceProvider.GetRequiredService<IModel>(), "test_queue", messagesPerSecond).Start());
+                {
+                    var connection = serviceProvider.GetRequiredService<IConnection>();
+                    var model = connection.CreateModel();
+
+                    consumers.Enqueue(new Consumer(model, connection, "test_queue", messagesPerSecond).Start());
+                }
         }
 
 
-        
+
 
         public void RemoveConsumer(string id)
         {
