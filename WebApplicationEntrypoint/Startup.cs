@@ -41,7 +41,7 @@ namespace WebApplicationEntrypoint
                 //UseBackgroundThreadsForIO = true
             });
 
-            services.AddSingleton(sp =>
+            services.AddTransient(sp =>
             {
                 IConnection connection = null;
 
