@@ -55,6 +55,7 @@ rootApp.controller("PublisherController", function ($scope, $http, $interval) {
     });
 
     $scope.deletePublisher = (function (publisher) {
+        publisher.removing = true;
         $http.delete("/api/Publisher/" + publisher.id).then(function (response) {
             $scope.$parent.showNotification({ title: `Carga de trabalho ${publisher.id.split('-')[0]} deletada`, text: `A carga de trabalho ${publisher.id} foi deletada com sucesso`, icon: "check-circle" });
         }, function (response) {
@@ -98,6 +99,7 @@ rootApp.controller("ConsumerController", function ($scope, $http, $interval) {
     });
 
     $scope.deleteConsumer = (function (consumer) {
+        consumer.removing = true;
         $http.delete("/api/Consumer/" + consumer.id).then(function (response) {
             $scope.$parent.showNotification({ title: `Processador ${consumer.id.split('-')[0]} deletado`, text: `O processador ${consumer.id} foi deletado com sucesso`, icon: "check-circle" });
         }, function (response) {
