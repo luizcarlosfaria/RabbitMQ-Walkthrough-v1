@@ -1,4 +1,5 @@
 FROM rabbitmq:3.8-management-alpine
+#FROM rabbitmq:3.9.0-rc.1-management-alpine
 
 ADD ./rabbitmq.conf /etc/rabbitmq/rabbitmq.conf
 

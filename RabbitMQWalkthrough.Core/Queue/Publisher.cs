@@ -35,9 +35,8 @@ namespace RabbitMQWalkthrough.Core.Queue
                 {
                     count++;
 
-                    if (this.MessagesPerSecond != 1000)
-                        this.MessagesPerSecond.AsMessageRateToSleepTimeSpan().Wait();
-                   
+                    this.MessagesPerSecond.AsMessageRateToSleepTimeSpan().Wait();
+
 
                     var message = new Message()
                     {

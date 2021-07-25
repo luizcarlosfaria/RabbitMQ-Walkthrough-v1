@@ -16,13 +16,15 @@ GO
 CREATE TABLE dbo.Messages
 	(
 	MessageId int NOT NULL IDENTITY (1, 1),
-	Created datetime2(7) NOT NULL,
-	Processed datetime2(7) NOT NULL,
-	Stored datetime2(7) NOT NULL,
+	Created datetime2(7) NOT NULL, --Data de Criação em memória
+	Stored datetime2(7) NOT NULL, --Data de gravação no SQL Server
+	Processed datetime2(7) NULL, --Última data de processamento
 
 	[TimeSpentInQueue]  AS (datediff(millisecond,[Created],[Processed])) PERSISTED,
 	[TimeSpentProcessing]  AS (datediff(millisecond,[Processed],[Stored])) PERSISTED,
 	[TimeSpent]  AS (datediff(millisecond,[Created],[Stored])) PERSISTED,
+
+	[Num] int NOT NULL
 
 	)  ON [PRIMARY]
 GO
@@ -38,10 +40,23 @@ ALTER TABLE dbo.Messages ADD CONSTRAINT
 GO
 ALTER TABLE dbo.Messages SET (LOCK_ESCALATION = TABLE)
 GO
+
+
+CREATE TABLE [dbo].[Metrics](
+	[MetricId] [int] IDENTITY(1,1) NOT NULL,
+	[Date] [datetime] NOT NULL,
+	[WorkerCount] [int] NOT NULL,
+	[WorkLoadSize] [int] NOT NULL,
+	[ConsumerCount] [int] NOT NULL,
+	[ConsumerThroughput] [int] NOT NULL,
+	[QueueSize] [int] NOT NULL,
+	[PublishRate] [float] NOT NULL,
+	[ConsumeRate] [float] NOT NULL,
+ CONSTRAINT [PK_Metrics] PRIMARY KEY CLUSTERED 
+(
+	[MetricId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
 COMMIT
-
-
-
-
-
-

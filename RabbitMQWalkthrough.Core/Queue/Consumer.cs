@@ -36,8 +36,7 @@ namespace RabbitMQWalkthrough.Core.Queue
 
         private void OnMessage(object sender, BasicDeliverEventArgs e)
         {
-            if (this.MessagesPerSecond != 1000)
-                this.MessagesPerSecond.AsMessageRateToSleepTimeSpan().Wait();
+            this.MessagesPerSecond.AsMessageRateToSleepTimeSpan().Wait();
 
             Message message = e.Body.ToArray().ToUTF8String().Deserialize<Message>();
 
@@ -53,7 +52,7 @@ namespace RabbitMQWalkthrough.Core.Queue
 
         public Consumer Start()
         {
-            this.model.SetPrefetchCount((ushort)(this.MessagesPerSecond));
+            this.model.SetPrefetchCount((ushort)(this.MessagesPerSecond*4));
 
             this.ConsumerTag = this.model.BasicConsume(this.queue, false, this.eventingBasicConsumer);
 
