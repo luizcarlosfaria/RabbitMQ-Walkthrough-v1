@@ -25,7 +25,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
 
         public void AddPublisher(int size, int messagesPerSecond)
         {
-            if (size > 0)
+            if (size > 0 && messagesPerSecond > 0) 
                 for (var i = 1; i <= size; i++)
                 {
                     var publisher = this.serviceProvider.GetRequiredService<Publisher>();

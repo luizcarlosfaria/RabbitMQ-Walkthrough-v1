@@ -17,15 +17,20 @@ using System.Threading.Tasks;
 
 namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
 {
+
+    /// <summary>
+    /// Esse publisher foi desenhado para representar uma carga de trabalho que envia X mensagens por segundo.
+    /// Diversas decisões foram tomadas com base nessa característica.    
+    /// </summary>
     public class Publisher
     {
         private readonly IModel model;
-        private readonly IConnection connection;
+        private readonly IConnection rabbitMqConnection;
         private readonly SqlConnection sqlConnection;
         private readonly MessageDataService messageDataService;
         private readonly ILogger<Publisher> logger;
         private  string exchange;
-        private Thread runThread;
+        private readonly Thread runThread;
         private volatile bool isRunning;
 
 
@@ -35,16 +40,14 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
 
         public string Id { get; }
 
-        public Publisher(IModel model, IConnection connection, SqlConnection sqlConnection, MessageDataService messageDataService, ILogger<Publisher> logger)
+        public Publisher(IModel model, IConnection rabbitMqConnection, SqlConnection sqlConnection, MessageDataService messageDataService, ILogger<Publisher> logger)
         {
             this.model = model;
-            this.connection = connection;
+            this.rabbitMqConnection = rabbitMqConnection;
             this.sqlConnection = sqlConnection;
             this.messageDataService = messageDataService;
             this.logger = logger;
             this.Id = Guid.NewGuid().ToString("D");
-
-            model.ConfirmSelect();
 
             this.runThread = new Thread(this.HandlePublish);
         }
@@ -59,6 +62,8 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
 
         private void HandlePublish()
         {
+            this.model.ConfirmSelect(); //Ack na publicação.
+
             long count = 0;
             while (this.isRunning)
             {
@@ -78,11 +83,10 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
                         exchange: this.exchange,
                         routingKey: string.Empty,
                         mandatory: true,
-                        basicProperties: this.model.CreatePersistentBasicProperties(),
-                        body: message.Serialize().ToByteArray().ToReadOnlyMemory());
+                        basicProperties: this.model.CreatePersistentBasicProperties(), //Extension Method para criar um basic properties com persistência
+                        body: message.Serialize().ToByteArray().ToReadOnlyMemory()); //Extension Method para simplificar a publicação
 
-
-                    this.model.WaitForConfirmsOrDie(TimeSpan.FromSeconds(5));
+                    this.model.WaitForConfirmsOrDie(TimeSpan.FromSeconds(5)); //Ack na publicação.
 
                     transaction.Commit();
                 }
@@ -93,13 +97,15 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
                 }
             }
 
+            //se chegamos aqui, nosso worker foi parado.
+
             this.model.Close();
 
             this.model.Dispose();
 
-            this.connection.Close();
+            this.rabbitMqConnection.Close();
 
-            this.connection.Dispose();
+            this.rabbitMqConnection.Dispose();
 
             this.sqlConnection.Close();
 

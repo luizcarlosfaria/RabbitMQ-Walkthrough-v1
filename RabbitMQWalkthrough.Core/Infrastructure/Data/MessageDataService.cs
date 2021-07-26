@@ -36,7 +36,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Data
             return message;
         }
 
-        internal void MarkAsProcessed(Message message, SqlConnection sqlConnection, SqlTransaction sqlTransaction)
+        public void MarkAsProcessed(Message message, SqlConnection sqlConnection, SqlTransaction sqlTransaction)
         {
             string sql = @"UPDATE [dbo].[Messages] 
                             SET 

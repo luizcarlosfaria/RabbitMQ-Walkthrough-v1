@@ -21,11 +21,11 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
         public IEnumerable<Consumer> Consumers => this.consumers.ToArray();
 
 
-        private object syncLock = new Object();
+        private object syncLock = new();
 
         public void AddConsumer(int size, int messagesPerSecond)
         {
-            if (size > 0)
+            if (size > 0 && messagesPerSecond > 0)
                 for (var i = 1; i <= size; i++)
                 {
                     var consumer = this.serviceProvider.GetRequiredService<Consumer>();
