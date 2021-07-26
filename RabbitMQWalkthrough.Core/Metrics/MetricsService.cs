@@ -28,7 +28,7 @@ namespace RabbitMQWalkthrough.Core.Metrics
         {
             Metric metric = new()
             {
-                Date = DateTime.Now
+                Date = DateTime.UtcNow
             };
 
             foreach (IMetricCollector metricCollector in this.metricCollectors)
