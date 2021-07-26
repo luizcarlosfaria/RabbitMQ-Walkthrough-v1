@@ -49,3 +49,63 @@ Na fase em que não tínhamos acesso a banco, tentei usar o [RateLimiter](https:
 ## Sobre
 Para maiores informações visite http://gago.io/
 Mais informações sobre RabbitMQ http://gago.io/rabbitmq
+
+
+## Como usar
+
+### GIT Clone
+
+Esse repositório está distribuído em diverso locais. Cada um com uma finalidade e evoluindo em direção independente.
+
+#### Alunos RabbitMQ para Aplicações .NET
+
+https://github.com/luizcarlosfaria-rabbitmq-masterclass/RabbitMQ-Walkthrough.git
+
+Nosso foco aqui é entender RabbitMQ e seu uso.
+
+#### Alunos Docker Definitivo / O Roadmap
+
+https://github.com/docker-definitivo/RabbitMQ-Walkthrough.git
+
+Nosso objetivo é entender RabbitMQ, entender algumas decisões arquiteturais e o motivo de algumas escolhas.
+
+Do ponto de vista de docker, podemos ver como conseguimos montar stacks completas prontas para demonstração.
+
+Do ponto de vista de arquitetura, conseguimos ver cenários onde usamos tecnologias especialistas para cada finalidade. Como o grafana para Visualização dos dados, enquanto usamos o RabbitMQ para mensageria e o SQL Server para persistência definitiva.
+
+#### Comunidade 
+
+Uso geral de acordo com a licença.
+
+- https://github.com/luizcarlosfaria/RabbitMQ-Walkthrough.git
+
+### O stack conta com quais componentes?
+
+- Web APP 
+    - .NET 5
+    - Web
+    - AngularJS
+    - CSS: [tailwindcss](https://tailwindcss.com/)
+    - API's não autenticadas
+
+- SQL Server
+    - Imagem customizada luizcarlosfaria/mssql-server-linux:2019-latest ([saiba mais](https://gago.io/blog/projetos/mssql-server-linux/))
+    - Automação padrão da imagem para criação de banco e usuários
+    - Automação padrão da imagem para criação dos objetos de banco (tabelas)
+
+- RabbitMQ 
+    - Imagem: rabbitmq:3.8-management-alpine
+    - Single Node
+
+- Grafana
+    - Imagem: grafana/grafana:8.0.5-ubuntu
+    - Single Node
+    - Pré configurado
+
+Como usar:
+
+     git clone {repourl}
+     cd ./RabbitMQ-Walkthrough
+     docker-compose pull
+     docker-compose build
+     docker-compose up
