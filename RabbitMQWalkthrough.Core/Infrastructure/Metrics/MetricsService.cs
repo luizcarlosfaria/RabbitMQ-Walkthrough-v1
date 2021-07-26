@@ -1,4 +1,4 @@
-﻿using RabbitMQWalkthrough.Core.Metrics.Collectors;
+﻿using RabbitMQWalkthrough.Core.Infrastructure.Metrics.Collectors;
 using Dapper;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RabbitMQWalkthrough.Core.Metrics
+namespace RabbitMQWalkthrough.Core.Infrastructure.Metrics
 {
     public class MetricsService
     {

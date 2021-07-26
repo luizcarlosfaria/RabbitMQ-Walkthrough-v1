@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RabbitMQWalkthrough.Core.Metrics
+namespace RabbitMQWalkthrough.Core.Infrastructure.Metrics
 {
     public class Metric
     {

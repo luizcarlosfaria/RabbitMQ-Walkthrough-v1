@@ -1,11 +1,11 @@
-﻿using RabbitMQWalkthrough.Core.Queue;
+﻿using RabbitMQWalkthrough.Core.Infrastructure.Queue;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RabbitMQWalkthrough.Core.Metrics.Collectors
+namespace RabbitMQWalkthrough.Core.Infrastructure.Metrics.Collectors
 {
     public class PublisherMetricCollector : IMetricCollector
     {

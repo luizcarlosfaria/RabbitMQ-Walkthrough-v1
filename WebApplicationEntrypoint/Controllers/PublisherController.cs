@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RabbitMQWalkthrough.Core.Queue;
+using RabbitMQWalkthrough.Core.Infrastructure.Queue;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +22,7 @@ namespace WebApplicationEntrypoint.Controllers
         [HttpPut]
         public void AddPublisher([FromQuery]int size, [FromQuery] int messagesPerSecond)
         {
-            publisherManager.AddPublisher(size, messagesPerSecond);
+            this.publisherManager.AddPublisher(size, messagesPerSecond);
         }
 
       
@@ -30,13 +30,13 @@ namespace WebApplicationEntrypoint.Controllers
         [HttpDelete("{id}")]
         public void RemovePublisher(string id)
         {
-            publisherManager.RemovePublisher(id);
+            this.publisherManager.RemovePublisher(id);
         }
 
         [HttpGet()]
         public IEnumerable<Publisher> GetPublishers()
         {
-            return publisherManager.Publishers;
+            return this.publisherManager.Publishers;
         }
     }
 }

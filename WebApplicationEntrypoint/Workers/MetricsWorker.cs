@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using RabbitMQWalkthrough.Core.Metrics;
+using RabbitMQWalkthrough.Core.Infrastructure.Metrics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +16,7 @@ namespace WebApplicationEntrypoint.Workers
 
         public MetricsWorker(ILogger<MetricsWorker> logger, MetricsService metricsService)
         {
-            _logger = logger;
+            this._logger = logger;
             this.metricsService = metricsService;
         }
 
@@ -24,11 +24,11 @@ namespace WebApplicationEntrypoint.Workers
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation("MetricsWorker running at: {time}", DateTimeOffset.Now);
+                this._logger.LogInformation("MetricsWorker running at: {time}", DateTimeOffset.Now);
                 try
                 {
 
-                    metricsService.CollectAndStore();
+                    this.metricsService.CollectAndStore();
                     await Task.Delay(1000, stoppingToken);
                 }
                 catch (OperationCanceledException)

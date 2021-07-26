@@ -5,12 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Polly;
 using RabbitMQ.Client;
+using RabbitMQWalkthrough.Core.Infrastructure;
 using RabbitMQ.Client.Exceptions;
-using RabbitMQWalkthrough.Core;
-using RabbitMQWalkthrough.Core.Architecture;
-using RabbitMQWalkthrough.Core.Metrics;
-using RabbitMQWalkthrough.Core.Metrics.Collectors;
-using RabbitMQWalkthrough.Core.Queue;
+using RabbitMQWalkthrough.Core.Infrastructure.Metrics;
+using RabbitMQWalkthrough.Core.Infrastructure.Metrics.Collectors;
+using RabbitMQWalkthrough.Core.Infrastructure.Queue;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -24,7 +23,7 @@ namespace WebApplicationEntrypoint
     {
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            this.Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
@@ -34,35 +33,29 @@ namespace WebApplicationEntrypoint
         {
             services.AddControllersWithViews();
 
-            services.AddSingleton(sp => new ConnectionFactory() {
+            services.AddSingleton(sp => new ConnectionFactory()
+            {
                 Uri = new Uri("amqp://WalkthroughUser:WalkthroughPassword@rabbitmq/Walkthrough"),
                 DispatchConsumersAsync = false,
                 ConsumerDispatchConcurrency = 1,
                 //UseBackgroundThreadsForIO = true
             });
 
-            services.AddTransient(sp =>
-            {
-                IConnection connection = null;
 
-                var policy = Policy
-                    .Handle<BrokerUnreachableException>()
-                    .WaitAndRetry(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))
-                );
+            //TODO: Atenção
+            services.AddTransientWithRetry<IConnection, BrokerUnreachableException>(sp => sp.GetRequiredService<ConnectionFactory>().CreateConnection());
 
-                policy.Execute(() =>
-                {
-                    connection = sp.GetRequiredService<ConnectionFactory>().CreateConnection();
-
-                });
-
-                return connection;
-
-            });
-
-
-
+            //TODO: Atenção
             services.AddTransient(sp => sp.GetRequiredService<IConnection>().CreateModel());
+
+
+            //TODO: Atenção
+            services.AddTransientWithRetry<SqlConnection, SqlException>(sp =>
+            {
+                SqlConnection connection = new SqlConnection("Server=sql,1433;Database=Walkthrough;User Id=WalkthroughUser;Password=WalkthroughPass;MultipleActiveResultSets=true");
+                connection.Open();
+                return connection;
+            });
 
             services.AddSingleton<ConsumerManager>();
             services.AddSingleton<PublisherManager>();
@@ -73,24 +66,14 @@ namespace WebApplicationEntrypoint
             services.AddSingleton<IMetricCollector, CollectorFixer>();
             services.AddHostedService<MetricsWorker>();
 
+            //TODO: Atenção Precisa chamar Initialize()
+            services.AddTransient<Publisher>();
 
-            services.AddTransient(sp => {
+            //TODO: Atenção Precisa chamar Initialize()
+            services.AddTransient<Consumer>();
 
-                SqlConnection connection = null;
-                
-                var policy = Policy
-                    .Handle<SqlException>()
-                    .WaitAndRetry(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))
-                );
+            
 
-                policy.Execute(() =>
-                {
-                    connection = new SqlConnection("Server=sql,1433;Database=Walkthrough;User Id=WalkthroughUser;Password=WalkthroughPass;MultipleActiveResultSets=true");
-                    connection.Open();
-                });
-
-                return connection;
-            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

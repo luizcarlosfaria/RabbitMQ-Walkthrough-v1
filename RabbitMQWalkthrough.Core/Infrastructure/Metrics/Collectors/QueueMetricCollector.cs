@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using RestSharp;
 using RestSharp.Authenticators;
 using System;
@@ -10,10 +11,17 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RabbitMQWalkthrough.Core.Metrics.Collectors
+namespace RabbitMQWalkthrough.Core.Infrastructure.Metrics.Collectors
 {
     public class QueueMetricCollector : IMetricCollector
     {
+        private readonly ILogger<QueueMetricCollector> logger;
+
+        public QueueMetricCollector(ILogger<QueueMetricCollector> logger)
+        {
+            this.logger = logger;
+        }
+
 
         public void CollectAndSet(Metric metric)
         {
@@ -28,9 +36,8 @@ namespace RabbitMQWalkthrough.Core.Metrics.Collectors
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.ToString());
+                this.logger.LogError(ex, "Não foi possível obter métricas");
             }
-
 
         }
 

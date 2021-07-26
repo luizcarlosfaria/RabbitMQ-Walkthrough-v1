@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RabbitMQWalkthrough.Core.Queue;
+using RabbitMQWalkthrough.Core.Infrastructure.Queue;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +22,7 @@ namespace WebApplicationEntrypoint.Controllers
         [HttpPut]
         public void AddConsumer([FromQuery] int size, [FromQuery] int messagesPerSecond)
         {
-            consumerManager.AddConsumer(size, messagesPerSecond);
+            this.consumerManager.AddConsumer(size, messagesPerSecond);
         }
 
        
@@ -30,13 +30,13 @@ namespace WebApplicationEntrypoint.Controllers
         [HttpDelete("{id}")]
         public void RemoveConsumer(string id)
         {
-            consumerManager.RemoveConsumer(id);
+            this.consumerManager.RemoveConsumer(id);
         }
 
         [HttpGet()]
         public IEnumerable<Consumer> GetConsumer()
         {
-            return consumerManager.Consumers;
+            return this.consumerManager.Consumers;
         }
     }
 }
