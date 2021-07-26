@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQWalkthrough.Core.Infrastructure;
+using RabbitMQWalkthrough.Core.Infrastructure.Data;
 using RabbitMQWalkthrough.Core.Model;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
         private readonly IConnection connection;
         private readonly ILogger<Consumer> logger;
         private readonly SqlConnection sqlConnection;
+        private readonly MessageDataService messageDataService;
         private string queue;
         private EventingBasicConsumer eventingBasicConsumer;
         private volatile bool isRunning;
@@ -31,12 +33,13 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
 
         public string Id { get; }
 
-        public Consumer(IModel model, IConnection connection, ILogger<Consumer> logger, SqlConnection sqlConnection)
+        public Consumer(IModel model, IConnection connection, ILogger<Consumer> logger, SqlConnection sqlConnection, MessageDataService messageDataService)
         {
             this.model = model;
             this.connection = connection;
             this.logger = logger;
             this.sqlConnection = sqlConnection;
+            this.messageDataService = messageDataService;
             this.Id = Guid.NewGuid().ToString("D");
             this.eventingBasicConsumer = new EventingBasicConsumer(model);
             this.eventingBasicConsumer.Received += this.OnMessage;
@@ -82,12 +85,14 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
                 return;
             }
 
-
+            using var sqlTransaction = this.sqlConnection.BeginTransaction();
             try
             {
-                this.CallAgnosticService(message);
+                this.messageDataService.MarkAsProcessed(message,  this.sqlConnection, sqlTransaction);
 
                 this.model.BasicAck(e.DeliveryTag, false);
+
+                sqlTransaction.Commit();
             }
             catch (Exception ex)
             {
@@ -96,16 +101,12 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
 
                 this.logger.LogError(ex, "Mensagem foi reenfileirada para processamento futuro, o consumidor atual não conseguiu processá-la.");
 
+                sqlTransaction.Rollback();
                 return;
             }
 
         }
 
-        private void CallAgnosticService(Message message)
-        {
-            string sql = @"update [dbo].[Messages] set [Processed] = GETUTCDATE(), [Num] = [Num]+1 where [MessageId] = @MessageId;";
-            this.sqlConnection.Execute(sql, message);
-        }
 
         public Consumer Start()
         {

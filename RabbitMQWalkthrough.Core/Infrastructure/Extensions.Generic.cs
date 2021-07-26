@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Polly;
+using Polly.Retry;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
@@ -33,10 +34,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure
             {
                 TService returnValue = default;
 
-                var policy = Policy
-                    .Handle<TKnowException>()
-                    .WaitAndRetry(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))
-                );
+                RetryPolicy policy = BuildPopicy<TKnowException>();
 
                 policy.Execute(() =>
                 {
@@ -49,7 +47,43 @@ namespace RabbitMQWalkthrough.Core.Infrastructure
             });
         }
 
+        public static IServiceCollection AddSingletonWithRetry<TService, TKnowException>(this IServiceCollection services, Func<IServiceProvider, TService> implementationFactory)
+            where TKnowException : Exception
+            where TService : class
+        {
+            return services.AddSingleton(sp =>
+            {
+                TService returnValue = default;
+
+                BuildPopicy<TKnowException>().Execute(() => { returnValue = implementationFactory(sp); });
+
+                return returnValue;
+
+            });
+        }
+
+        public static IServiceCollection AddScopedWithRetry<TService, TKnowException>(this IServiceCollection services, Func<IServiceProvider, TService> implementationFactory)
+           where TKnowException : Exception
+           where TService : class
+        {
+            return services.AddScoped(sp =>
+            {
+                TService returnValue = default;
+
+                BuildPopicy<TKnowException>().Execute(() => { returnValue = implementationFactory(sp); });
+
+                return returnValue;
+
+            });
+        }
 
 
+        private static RetryPolicy BuildPopicy<TKnowException>() where TKnowException : Exception
+        {
+            return Policy
+                .Handle<TKnowException>()
+                .WaitAndRetry(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))
+            );
+        }
     }
 }

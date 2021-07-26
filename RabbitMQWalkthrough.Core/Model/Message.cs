@@ -12,18 +12,17 @@ namespace RabbitMQWalkthrough.Core.Model
 
 
         /// <summary>
-        /// Quando foi processada
-        /// </summary>
-        public DateTimeOffset Processed { get; set; }
-
-
-        /// <summary>
-        /// Data do banco
+        /// Data de Criação da Mensagem
         /// </summary>
         public DateTimeOffset Stored { get; set; }
 
+        /// <summary>
+        /// Data de Processamento da Mensagem
+        /// </summary>
+        public DateTimeOffset? Processed { get; set; }
+
         
-        public int TimeSpent { get; set; }
+        public TimeSpan? TimeSpent() => this.Processed?.Subtract(this.Stored) ?? null;
 
 
     }

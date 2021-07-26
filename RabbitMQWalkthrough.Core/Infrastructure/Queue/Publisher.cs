@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQWalkthrough.Core.Infrastructure;
+using RabbitMQWalkthrough.Core.Infrastructure.Data;
 using RabbitMQWalkthrough.Core.Model;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
         private readonly IModel model;
         private readonly IConnection connection;
         private readonly SqlConnection sqlConnection;
+        private readonly MessageDataService messageDataService;
         private readonly ILogger<Publisher> logger;
         private  string exchange;
         private Thread runThread;
@@ -33,62 +35,18 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
 
         public string Id { get; }
 
-        public Publisher(IModel model, IConnection connection, SqlConnection sqlConnection, ILogger<Publisher> logger)
+        public Publisher(IModel model, IConnection connection, SqlConnection sqlConnection, MessageDataService messageDataService, ILogger<Publisher> logger)
         {
             this.model = model;
             this.connection = connection;
             this.sqlConnection = sqlConnection;
+            this.messageDataService = messageDataService;
             this.logger = logger;
             this.Id = Guid.NewGuid().ToString("D");
 
             model.ConfirmSelect();
 
-            this.runThread = new Thread(() =>
-            {
-                long count = 0;
-                while (this.isRunning)
-                {
-                    this.MessagesPerSecond.AsMessageRateToSleepTimeSpan().Wait();
-
-                    count++;
-
-                    //Esse controle transacional deveria ser abstraído
-                    using var transaction = this.sqlConnection.BeginTransaction();
-                    try
-                    {
-                        /*Aqui deveria chamar alguma camada de negócio*/
-                        Message message = this.CallAgnosticService(transaction);
-                        //fim
-
-                        model.BasicPublish(
-                            exchange: this.exchange,
-                            routingKey: string.Empty,
-                            mandatory: true,
-                            basicProperties: model.CreatePersistentBasicProperties(),
-                            body: message.Serialize().ToByteArray().ToReadOnlyMemory());
-
-
-                        model.WaitForConfirmsOrDie(TimeSpan.FromSeconds(5));
-
-                        transaction.Commit();
-                    }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
-                        logger.LogError(ex, "Erro ao publicar mensagem. Transação com banco foi abortada.");
-                    }
-                }
-
-                this.model.Close();
-
-                this.model.Dispose();
-
-                this.connection.Close();
-
-                this.connection.Dispose();
-
-                this.sqlConnection.Close();
-            });
+            this.runThread = new Thread(this.HandlePublish);
         }
 
         public void Initialize(string exchange, int messagesPerSecond)
@@ -99,15 +57,54 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
             this.isInitialized = true;
         }
 
-        private Message CallAgnosticService(SqlTransaction transaction)
+        private void HandlePublish()
         {
-            string sql = @"
-                            INSERT INTO [dbo].[Messages] ([Stored],[Num])  VALUES (GETUTCDATE(),0); 
-                            SELECT * from [dbo].[Messages] where MessageId = SCOPE_IDENTITY();
-                        ";
-            Message message = this.sqlConnection.QuerySingle<Message>(sql, new { Created = DateTime.Now }, transaction);
-            return message;
+            long count = 0;
+            while (this.isRunning)
+            {
+                this.MessagesPerSecond.AsMessageRateToSleepTimeSpan().Wait();
+
+                count++;
+
+                //Esse controle transacional deveria ser abstraído
+                using var transaction = this.sqlConnection.BeginTransaction();
+                try
+                {
+                    /*Aqui deveria chamar alguma camada de negócio*/
+                    Message message = this.messageDataService.CreateMessage(transaction, this.sqlConnection);
+                    //fim
+
+                    this.model.BasicPublish(
+                        exchange: this.exchange,
+                        routingKey: string.Empty,
+                        mandatory: true,
+                        basicProperties: this.model.CreatePersistentBasicProperties(),
+                        body: message.Serialize().ToByteArray().ToReadOnlyMemory());
+
+
+                    this.model.WaitForConfirmsOrDie(TimeSpan.FromSeconds(5));
+
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    this.logger.LogError(ex, "Erro ao publicar mensagem. Transação com banco foi abortada.");
+                }
+            }
+
+            this.model.Close();
+
+            this.model.Dispose();
+
+            this.connection.Close();
+
+            this.connection.Dispose();
+
+            this.sqlConnection.Close();
+
         }
+
 
 
         public Publisher Start()

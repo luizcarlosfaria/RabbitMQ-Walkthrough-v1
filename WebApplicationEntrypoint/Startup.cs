@@ -16,6 +16,8 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using WebApplicationEntrypoint.Workers;
+using System.Data.Common;
+using RabbitMQWalkthrough.Core.Infrastructure.Data;
 
 namespace WebApplicationEntrypoint
 {
@@ -57,6 +59,7 @@ namespace WebApplicationEntrypoint
                 return connection;
             });
 
+
             services.AddSingleton<ConsumerManager>();
             services.AddSingleton<PublisherManager>();
             services.AddSingleton<MetricsService>();
@@ -65,6 +68,9 @@ namespace WebApplicationEntrypoint
             services.AddSingleton<IMetricCollector, ConsumerMetricCollector>();
             services.AddSingleton<IMetricCollector, CollectorFixer>();
             services.AddHostedService<MetricsWorker>();
+
+
+            services.AddSingleton<MessageDataService>();
 
             //TODO: Atenção Precisa chamar Initialize()
             services.AddTransient<Publisher>();
