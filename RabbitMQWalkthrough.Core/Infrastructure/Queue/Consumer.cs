@@ -60,14 +60,14 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
             if (this.isRunning == false)
             {
                 if (this.model.IsOpen)
+                {
                     this.model.BasicReject(e.DeliveryTag, true);
-
-                this.logger.LogInformation("Mensagem sofreu rejeição leve em função do desligamento do consumidor");
-
+                    this.logger.LogInformation("Mensagem sofreu rejeição leve em função do desligamento do consumidor");
+                }
                 return;
             }
-
-            this.MessagesPerSecond.AsMessageRateToSleepTimeSpan().Wait();
+            if (this.MessagesPerSecond != 0)
+                this.MessagesPerSecond.AsMessageRateToSleepTimeSpan().Wait();
 
             Message message = null;
 
@@ -78,33 +78,50 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
             catch (Exception ex)
             {
                 if (this.model.IsOpen)
+                {
                     this.model.BasicReject(e.DeliveryTag, false);
-
-                this.logger.LogError(ex, "Mensagem sofreu uma rejeição grave em função de um erro na desserialização. A mensagem será descartada");
-
+                    this.logger.LogError(ex, "Mensagem sofreu uma rejeição grave em função de um erro na desserialização. A mensagem será descartada");
+                }
                 return;
             }
 
-            using var sqlTransaction = this.sqlConnection.BeginTransaction();
-            try
+            using (var sqlTransaction = this.sqlConnection.BeginTransaction())
             {
-                this.messageDataService.MarkAsProcessed(message,  this.sqlConnection, sqlTransaction);
-
-                this.model.BasicAck(e.DeliveryTag, false);
-
-                sqlTransaction.Commit();
+                try
+                {
+                    if (this.isRunning)
+                    {
+                        this.messageDataService.MarkAsProcessed(message, this.sqlConnection, sqlTransaction);
+                        if (this.isRunning)
+                        {
+                            this.model.BasicAck(e.DeliveryTag, false);
+                            sqlTransaction.Commit();
+                        }
+                        else
+                        {
+                            this.logger.LogInformation("Abordando procesamento sem ack e sem commit");
+                        }
+                    }
+                    else
+                    {
+                        if (this.model.IsOpen)
+                        {
+                            this.model.BasicReject(e.DeliveryTag, true);
+                            this.logger.LogInformation("Mensagem sofreu rejeição leve em função do desligamento do consumidor");
+                        }
+                        sqlTransaction.Rollback();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (this.model.IsOpen)
+                    {
+                        this.model.BasicNack(e.DeliveryTag, false, true);
+                        this.logger.LogError(ex, "Mensagem foi reenfileirada para processamento futuro, o consumidor atual não conseguiu processá-la.");
+                    }
+                    sqlTransaction.Rollback();
+                }
             }
-            catch (Exception ex)
-            {
-                if (this.model.IsOpen)
-                    this.model.BasicNack(e.DeliveryTag, false, true);
-
-                this.logger.LogError(ex, "Mensagem foi reenfileirada para processamento futuro, o consumidor atual não conseguiu processá-la.");
-
-                sqlTransaction.Rollback();
-                return;
-            }
-
         }
 
 
@@ -112,7 +129,10 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
         {
             if (this.isInitialized == false) throw new InvalidOperationException("Instancia não inicializada");
 
-            this.model.SetPrefetchCount((ushort)(this.MessagesPerSecond * 5));
+            if (this.MessagesPerSecond > 0)
+                this.model.SetPrefetchCount((ushort)(this.MessagesPerSecond * 5));
+            else
+                this.model.SetPrefetchCount((ushort)(1000));
 
             this.isRunning = true;
 
@@ -129,6 +149,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
             {
                 this.model.BasicCancel(this.ConsumerTag);
             }
+
 
             this.model.Close();
 

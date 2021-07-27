@@ -29,7 +29,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
         private readonly SqlConnection sqlConnection;
         private readonly MessageDataService messageDataService;
         private readonly ILogger<Publisher> logger;
-        private  string exchange;
+        private string exchange;
         private readonly Thread runThread;
         private volatile bool isRunning;
 
@@ -67,7 +67,8 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
             long count = 0;
             while (this.isRunning)
             {
-                this.MessagesPerSecond.AsMessageRateToSleepTimeSpan().Wait();
+                if (this.MessagesPerSecond != 0)
+                    this.MessagesPerSecond.AsMessageRateToSleepTimeSpan().Wait();
 
                 count++;
 

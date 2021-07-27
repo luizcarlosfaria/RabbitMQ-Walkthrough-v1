@@ -25,7 +25,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
 
         public void AddConsumer(int size, int messagesPerSecond)
         {
-            if (size > 0 && messagesPerSecond > 0)
+            if (size > 0)
                 for (var i = 1; i <= size; i++)
                 {
                     var consumer = this.serviceProvider.GetRequiredService<Consumer>();
@@ -48,8 +48,8 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
                     if (consumer != null)
                     {
                         this.consumers.Remove(consumer);
+                        consumer.Stop();
                     }
-                    consumer.Stop();
                 }
             }
         }

@@ -25,7 +25,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
 
         public void AddPublisher(int size, int messagesPerSecond)
         {
-            if (size > 0 && messagesPerSecond > 0) 
+            if (size > 0)
                 for (var i = 1; i <= size; i++)
                 {
                     var publisher = this.serviceProvider.GetRequiredService<Publisher>();
@@ -52,10 +52,10 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
                     var publisher = this.publishers.SingleOrDefault(it => it.Id == id);
                     if (publisher != null)
                     {
-
                         this.publishers.Remove(publisher);
+                        publisher.Stop();
                     }
-                    publisher.Stop();
+
                 }
             }
         }

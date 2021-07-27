@@ -54,7 +54,7 @@ namespace WebApplicationEntrypoint
             //TODO: Atenção
             services.AddTransientWithRetry<SqlConnection, SqlException>(sp =>
             {
-                SqlConnection connection = new SqlConnection("Server=sql,1433;Database=Walkthrough;User Id=WalkthroughUser;Password=WalkthroughPass;MultipleActiveResultSets=true");
+                SqlConnection connection = new SqlConnection("Server=sql,1433;Database=Walkthrough;User Id=WalkthroughUser;Password=WalkthroughPass;MultipleActiveResultSets=true;");
                 connection.Open();
                 return connection;
             });
