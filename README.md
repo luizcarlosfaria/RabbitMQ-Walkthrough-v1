@@ -94,13 +94,18 @@ Uso geral de acordo com a licença.
     - Automação padrão da imagem para criação dos objetos de banco (tabelas)
 
 - RabbitMQ 
-    - Imagem: rabbitmq:3.8-management-alpine
+    - Imagem: rabbitmq:3.9.1-management-alpine
     - Single Node
+    - Com ar
 
 - Grafana
     - Imagem: grafana/grafana:8.0.5-ubuntu
     - Single Node
     - Pré configurado
+      -  Habilitando métricas por objeto no prometheus
+      -  Habilitando coleta de métricas a cada 1 segundo (antipattern para produção)
+      -  Habilitnado modo de coleta de métricas detalhado  (antipattern para produção)
+      -  Definição de usuário e virtual host defaults.
 
 Como usar:
 
@@ -109,3 +114,14 @@ Como usar:
      docker-compose pull
      docker-compose build
      docker-compose up
+     
+   execute no browser:
+   
+     Aplicação web:
+     http://localhost:8877/
+     
+     Grafana:
+     http://localhost:3000/d/mnwDaxWnz/gago-io-metricas?orgId=1&refresh=5s
+     
+     RabbitMQ
+     http://localhost:15672/
