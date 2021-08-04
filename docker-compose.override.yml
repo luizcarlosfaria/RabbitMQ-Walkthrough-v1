@@ -5,7 +5,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
-      - "8877:80"
+      - "8877:80" # habilitado visualização no browser
     restart: always
     depends_on: 
       - rabbitmq
@@ -20,9 +20,9 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq/mnesia
     ports:
-      - "15672:15672" #management
-      - "15692:15692" #prometheus
-      - "5672:5672"   #amqp
+      - "15672:15672" #management # habilitado visualização no browser
+      #- "15692:15692" #prometheus # desnecessário
+      #- "5672:5672"   #amqp       # desnecessário
     healthcheck:
       test: ["CMD-SHELL", "curl -I -s -L http://localhost:15672 || exit 1"]
       interval: 30s
@@ -42,7 +42,7 @@ services:
       "TZ": "America/Sao_Paulo"
     }
     ports:
-      - "3000:3000"    
+      - "3000:3000" # habilitado visualização no browser
     volumes:
       - ./grafana/data/:/var/lib/grafana
     networks:
@@ -62,7 +62,7 @@ services:
         "TZ": "America/Sao_Paulo"
       }
       ports: 
-        - 1433:1433      
+        - 1433:1433 # habilitado para utilização no SSMS ou Data Studio
       networks:
       - walkthrough-net
       volumes:
