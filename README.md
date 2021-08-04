@@ -1,4 +1,8 @@
 
+
+
+![image info](./RabbitMQ-Walkthrough-v1.png)
+
 # RabbitMQ-Walkthrough
 
 RabbitMQ - Demonstração de Comportamento padrão com Mensageria.
@@ -115,7 +119,7 @@ Como usar:
      docker-compose build
      docker-compose up
      
-   execute no browser:
+Execute no browser:
    
      Aplicação web:
      http://localhost:8877/
