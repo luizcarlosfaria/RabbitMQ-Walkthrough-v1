@@ -14,23 +14,24 @@ RabbitMQ - Demonstração de Comportamento padrão com Mensageria.
   
 ## Objetivo
 
-1) Demonstrar comportamento padrão quando:
-A) Temos uma carga de trabalho menor que nossa capacidade de processamento
-B) Temos uma carga de trabalho igual à nossa capacidade de processamento 
-B) Temos uma carga de trabalho maior que nossa capacidade de processamento 
+### 1) Demonstrar comportamento padrão quando:
 
-2) Nesses casos:
-A) Como as filas acumulam mensagens?
-B) Como o tempo médio até o processamento é influenciado?
-C) Como lidamos com escala?
+- A) Temos uma carga de trabalho menor que nossa capacidade de processamento
+- B) Temos uma carga de trabalho igual à nossa capacidade de processamento 
+- C) Temos uma carga de trabalho maior que nossa capacidade de processamento 
 
-3) Nesse exemplo conseguimos demonstrar:
-A) Disponibilidade
-B) Eficiência
-C) Resiliência
-D) Confiabilidade
-C) Escalabilidade
-E) Idempotência e porque precisamos dela, quando ela faz mais sentido em cenários assíncronos.
+### 2) Nesses casos:
+- A) Como as filas acumulam mensagens?
+- B) Como o tempo médio até o processamento é influenciado?
+- C) Como lidamos com escala?
+
+### 3) Nesse exemplo conseguimos demonstrar:
+- A) Disponibilidade
+- B) Eficiência
+- C) Resiliência
+- D) Confiabilidade
+- C) Escalabilidade
+- E) Idempotência e porque precisamos dela, quando ela faz mais sentido em cenários assíncronos.
 
 ## Decisões técnicas
 
