@@ -3,6 +3,12 @@
 
 ![image info](./RabbitMQ-Walkthrough-v1.png)
 
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=dAsJn_HDi6U">
+    <img width="640" height="360" src="https://j.gifs.com/r22qEL.gif">
+  </a>
+</p>
+
 # RabbitMQ-Walkthrough
 
 RabbitMQ - Demonstração de Comportamento padrão com Mensageria.
