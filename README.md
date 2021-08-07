@@ -44,6 +44,7 @@ RabbitMQ - Demonstração de Comportamento padrão com Mensageria.
 Todas as decisões técnicas forma tomadas com base nos objetivos da aplicação. 
 Tirar de contexto pode e provavelmente fará  fazer com que você falhe.
 Copiar código para colocar em produção pode te custar muito caro, pois as decisões tomadas aqui tem função didática.
+Até as senhas e credenciais estão em hard code propositalmente, para que não sejam alteradas pois há dependências que não estão configuradas para rodar de forma diferente, como por exemplo a conexão com do Grafana com o SQL Server.
 
 ## Sobre a discrepância entre Throughput solicitado vs Throughput real
 
@@ -107,16 +108,16 @@ Uso geral de acordo com a licença.
 - RabbitMQ 
     - Imagem: rabbitmq:3.9.1-management-alpine
     - Single Node
-    - Com ar
-
-- Grafana
-    - Imagem: grafana/grafana:8.0.5-ubuntu
-    - Single Node
     - Pré configurado
       -  Habilitando métricas por objeto no prometheus
       -  Habilitando coleta de métricas a cada 1 segundo (antipattern para produção)
       -  Habilitnado modo de coleta de métricas detalhado  (antipattern para produção)
       -  Definição de usuário e virtual host defaults.
+
+- Grafana
+    - Imagem: grafana/grafana:8.0.5-ubuntu
+    - Single Node
+    - Pré configurado com Dashboard padrão para apresentar dados do SQL Server
 
 Como usar:
 
