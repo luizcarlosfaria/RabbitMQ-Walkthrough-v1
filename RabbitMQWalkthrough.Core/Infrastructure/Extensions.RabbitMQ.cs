@@ -12,6 +12,18 @@ namespace RabbitMQWalkthrough.Core.Infrastructure
     {
         public static IBasicProperties CreatePersistentBasicProperties(this IModel model) => model.CreateBasicProperties().SetDeliveryMode(2);
 
+        public static IBasicProperties SetMessageId(this IBasicProperties prop, string messageId)
+        {
+            prop.MessageId = messageId;
+            return prop;
+        }
+
+        public static IBasicProperties SetCorrelationId(this IBasicProperties prop, string correlationId)
+        {
+            prop.CorrelationId = correlationId;
+            return prop;
+        }
+
 
         public static IBasicProperties SetDeliveryMode(this IBasicProperties prop, byte deliveryMode)
         {

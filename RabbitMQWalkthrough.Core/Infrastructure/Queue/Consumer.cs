@@ -54,14 +54,14 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
         }
 
 
-        private void OnMessage(object sender, BasicDeliverEventArgs e)
+        private void OnMessage(object sender, BasicDeliverEventArgs eventArgs)
         {
 
             if (this.isRunning == false)
             {
                 if (this.model.IsOpen)
                 {
-                    this.model.BasicReject(e.DeliveryTag, true);
+                    this.model.BasicReject(eventArgs.DeliveryTag, true);
                     this.logger.LogInformation("Mensagem sofreu rejeição leve em função do desligamento do consumidor");
                 }
                 return;
@@ -73,54 +73,55 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
 
             try
             {
-                message = e.Body.ToArray().ToUTF8String().Deserialize<Message>();
+                message = eventArgs.Body.ToArray().ToUTF8String().Deserialize<Message>();
             }
             catch (Exception ex)
             {
                 if (this.model.IsOpen)
                 {
-                    this.model.BasicReject(e.DeliveryTag, false);
+                    this.model.BasicReject(eventArgs.DeliveryTag, false);
                     this.logger.LogError(ex, "Mensagem sofreu uma rejeição grave em função de um erro na desserialização. A mensagem será descartada");
                 }
                 return;
             }
 
-            using (var sqlTransaction = this.sqlConnection.BeginTransaction())
+            using var sqlTransaction = this.sqlConnection.BeginTransaction();
+            try
             {
-                try
+                if (this.isRunning)
                 {
+                    this.messageDataService.MarkAsProcessed(message, this.sqlConnection, sqlTransaction);
+
                     if (this.isRunning)
                     {
-                        this.messageDataService.MarkAsProcessed(message, this.sqlConnection, sqlTransaction);
-                        if (this.isRunning)
-                        {
-                            this.model.BasicAck(e.DeliveryTag, false);
-                            sqlTransaction.Commit();
-                        }
-                        else
-                        {
-                            this.logger.LogInformation("Abordando procesamento sem ack e sem commit");
-                        }
+                        sqlTransaction.Commit();
+                        this.model.BasicAck(eventArgs.DeliveryTag, false);
                     }
                     else
                     {
-                        if (this.model.IsOpen)
-                        {
-                            this.model.BasicReject(e.DeliveryTag, true);
-                            this.logger.LogInformation("Mensagem sofreu rejeição leve em função do desligamento do consumidor");
-                        }
-                        sqlTransaction.Rollback();
+                        this.logger.LogInformation("Abordando procesamento sem ack e sem commit");
                     }
                 }
-                catch (Exception ex)
+                else
                 {
                     if (this.model.IsOpen)
                     {
-                        this.model.BasicNack(e.DeliveryTag, false, true);
-                        this.logger.LogError(ex, "Mensagem foi reenfileirada para processamento futuro, o consumidor atual não conseguiu processá-la.");
+                        this.model.BasicReject(eventArgs.DeliveryTag, true);
+                        this.logger.LogInformation("Mensagem sofreu rejeição leve em função do desligamento do consumidor");
                     }
                     sqlTransaction.Rollback();
                 }
+            }
+            catch (Exception ex)
+            {
+                if (this.model.IsOpen)
+                {
+                    this.model.BasicNack(eventArgs.DeliveryTag, false, true);
+                    this.logger.LogError(ex, "Mensagem foi reenfileirada para processamento futuro, o consumidor atual não conseguiu processá-la.");
+                }
+
+                if (sqlTransaction.Connection != null)
+                    sqlTransaction.Rollback();
             }
         }
 

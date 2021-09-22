@@ -84,7 +84,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
                         exchange: this.exchange,
                         routingKey: string.Empty,
                         mandatory: true,
-                        basicProperties: this.model.CreatePersistentBasicProperties(), //Extension Method para criar um basic properties com persistência
+                        basicProperties: this.model.CreatePersistentBasicProperties().SetMessageId(Guid.NewGuid().ToString("D")), //Extension Method para criar um basic properties com persistência
                         body: message.Serialize().ToByteArray().ToReadOnlyMemory()); //Extension Method para simplificar a publicação
 
                     this.model.WaitForConfirmsOrDie(TimeSpan.FromSeconds(5)); //Ack na publicação.

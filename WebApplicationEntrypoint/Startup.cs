@@ -85,7 +85,7 @@ namespace WebApplicationEntrypoint
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            InitRabbitMQ(app);
+            InitRabbitMQ(app.ApplicationServices);
 
             if (env.IsDevelopment())
             {
@@ -109,9 +109,9 @@ namespace WebApplicationEntrypoint
             });
         }
 
-        private static void InitRabbitMQ(IApplicationBuilder app)
+        private static void InitRabbitMQ(IServiceProvider applicationServices)
         {
-            using var rabbitMQChannel = app.ApplicationServices.GetRequiredService<IModel>();
+            using var rabbitMQChannel = applicationServices.GetRequiredService<IModel>();
 
             rabbitMQChannel.QueueDeclare("test_queue", true, false, false);
             rabbitMQChannel.ExchangeDeclare("test_exchange", "fanout", true, false);

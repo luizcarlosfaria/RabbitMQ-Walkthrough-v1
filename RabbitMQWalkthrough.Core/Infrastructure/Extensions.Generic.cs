@@ -34,7 +34,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure
             {
                 TService returnValue = default;
 
-                RetryPolicy policy = BuildPopicy<TKnowException>();
+                RetryPolicy policy = BuildPolicy<TKnowException>();
 
                 policy.Execute(() =>
                 {
@@ -55,7 +55,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure
             {
                 TService returnValue = default;
 
-                BuildPopicy<TKnowException>().Execute(() => { returnValue = implementationFactory(sp); });
+                BuildPolicy<TKnowException>().Execute(() => { returnValue = implementationFactory(sp); });
 
                 return returnValue;
 
@@ -70,7 +70,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure
             {
                 TService returnValue = default;
 
-                BuildPopicy<TKnowException>().Execute(() => { returnValue = implementationFactory(sp); });
+                BuildPolicy<TKnowException>().Execute(() => { returnValue = implementationFactory(sp); });
 
                 return returnValue;
 
@@ -78,11 +78,11 @@ namespace RabbitMQWalkthrough.Core.Infrastructure
         }
 
 
-        private static RetryPolicy BuildPopicy<TKnowException>() where TKnowException : Exception
+        private static RetryPolicy BuildPolicy<TKnowException>(int retryCount = 5) where TKnowException : Exception
         {
             return Policy
                 .Handle<TKnowException>()
-                .WaitAndRetry(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))
+                .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))
             );
         }
     }
