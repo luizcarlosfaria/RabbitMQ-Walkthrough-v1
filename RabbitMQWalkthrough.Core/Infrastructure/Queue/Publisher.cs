@@ -76,6 +76,8 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
                 using var transaction = this.sqlConnection.BeginTransaction();
                 try
                 {
+                    //Thread.Sleep(TimeSpan.FromMilliseconds(100));
+
                     /*Aqui deveria chamar alguma camada de negócio*/
                     Message message = this.messageDataService.CreateMessage(transaction, this.sqlConnection);
                     //fim
