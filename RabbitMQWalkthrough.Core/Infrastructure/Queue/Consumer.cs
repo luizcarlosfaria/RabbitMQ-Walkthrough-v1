@@ -56,6 +56,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
 
         private void OnMessage(object sender, BasicDeliverEventArgs eventArgs)
         {
+            //Thread.Sleep(TimeSpan.FromSeconds(2));
 
             if (this.isRunning == false)
             {
@@ -85,43 +86,51 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
                 return;
             }
 
-            using var sqlTransaction = this.sqlConnection.BeginTransaction();
-            try
-            {
-                if (this.isRunning)
-                {
-                    this.messageDataService.MarkAsProcessed(message, this.sqlConnection, sqlTransaction);
 
+            if (this.isRunning)
+            {
+                using var sqlTransaction = this.sqlConnection.BeginTransaction();
+                try
+                {
                     if (this.isRunning)
                     {
-                        sqlTransaction.Commit();
-                        this.model.BasicAck(eventArgs.DeliveryTag, false);
+                        this.messageDataService.MarkAsProcessed(message, this.sqlConnection, sqlTransaction);
+
+                        if (this.isRunning)
+                        {
+                            sqlTransaction.Commit();
+                            this.model.BasicAck(eventArgs.DeliveryTag, false);
+                        }
+                        else
+                        {
+                            this.logger.LogInformation("Abordando procesamento sem ack e sem commit");
+                        }
                     }
                     else
                     {
-                        this.logger.LogInformation("Abordando procesamento sem ack e sem commit");
+                        if (this.model.IsOpen)
+                        {
+                            this.model.BasicReject(eventArgs.DeliveryTag, true);
+                            this.logger.LogInformation("Mensagem sofreu rejeição leve em função do desligamento do consumidor");
+                        }
+                        sqlTransaction.Rollback();
                     }
                 }
-                else
+                catch (Exception ex)
                 {
                     if (this.model.IsOpen)
                     {
-                        this.model.BasicReject(eventArgs.DeliveryTag, true);
-                        this.logger.LogInformation("Mensagem sofreu rejeição leve em função do desligamento do consumidor");
+                        this.model.BasicNack(eventArgs.DeliveryTag, false, true);
+                        this.logger.LogError(ex, "Mensagem foi reenfileirada para processamento futuro, o consumidor atual não conseguiu processá-la.");
                     }
-                    sqlTransaction.Rollback();
+
+                    if (sqlTransaction.Connection != null)
+                        sqlTransaction.Rollback();
                 }
             }
-            catch (Exception ex)
+            else
             {
-                if (this.model.IsOpen)
-                {
-                    this.model.BasicNack(eventArgs.DeliveryTag, false, true);
-                    this.logger.LogError(ex, "Mensagem foi reenfileirada para processamento futuro, o consumidor atual não conseguiu processá-la.");
-                }
-
-                if (sqlTransaction.Connection != null)
-                    sqlTransaction.Rollback();
+                if (this.model.IsOpen) this.model.BasicReject(eventArgs.DeliveryTag, true);
             }
         }
 
