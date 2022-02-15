@@ -16,7 +16,7 @@ RabbitMQ - Demonstração de Comportamento padrão com Mensageria.
 **Material complementar dos cursos:**
 
  - [RabbitMQ para Aplicações .NET](https://lp.gago.io/rabbitmq) 
- - [Docker Definitivo / O ROADMAP](http://dockerdefinitivo.com/)
+ - [Cloud Native .NET](http://cloudnative.net.br/)
   
 ## Objetivo
 
@@ -71,13 +71,13 @@ Esse repositório está distribuído em diverso locais. Cada um com uma finalida
 
 #### Alunos RabbitMQ para Aplicações .NET
 
-https://github.com/luizcarlosfaria-rabbitmq-masterclass/RabbitMQ-Walkthrough.git
+https://github.com/luizcarlosfaria-rabbitmq/RabbitMQ-Walkthrough.git
 
 Nosso foco aqui é entender RabbitMQ e seu uso.
 
-#### Alunos Docker Definitivo / O Roadmap
+#### Alunos Cloud Native .NET
 
-https://github.com/docker-definitivo/RabbitMQ-Walkthrough.git
+https://github.com/cloudnative-net-br/RabbitMQ-Walkthrough.git
 
 Nosso objetivo é entender RabbitMQ, entender algumas decisões arquiteturais e o motivo de algumas escolhas.
 
