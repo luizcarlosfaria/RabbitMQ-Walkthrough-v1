@@ -22,7 +22,7 @@ services:
     ports:
       - "15672:15672" #management # habilitado visualização no browser
       #- "15692:15692" #prometheus # desnecessário
-      #- "5672:5672"   #amqp       # desnecessário
+      - "5672:5672"   #amqp       # desnecessário
     healthcheck:
       test: ["CMD-SHELL", "curl -I -s -L http://localhost:15672 || exit 1"]
       interval: 30s

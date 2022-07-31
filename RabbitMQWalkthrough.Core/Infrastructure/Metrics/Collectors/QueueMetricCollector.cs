@@ -16,10 +16,12 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Metrics.Collectors
     public class QueueMetricCollector : IMetricCollector
     {
         private readonly ILogger<QueueMetricCollector> logger;
+        private readonly RestClient client;
 
-        public QueueMetricCollector(ILogger<QueueMetricCollector> logger)
+        public QueueMetricCollector(ILogger<QueueMetricCollector> logger, RestClient client)
         {
             this.logger = logger;
+            this.client = client;
         }
 
 
@@ -45,11 +47,6 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Metrics.Collectors
 
         private QueueMetrics GetRawMetrics()
         {
-            RestClient client = new("http://rabbitmq:15672/api")
-            {
-                Authenticator = new HttpBasicAuthenticator("WalkthroughUser", "WalkthroughPassword")
-            };
-
             RestRequest request = new(resource: "/queues/Walkthrough/test_queue", DataFormat.Json);
 
             var response = client.Get<QueueMetrics>(request);

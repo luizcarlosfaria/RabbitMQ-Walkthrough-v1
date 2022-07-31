@@ -18,15 +18,33 @@ using System.Threading.Tasks;
 using WebApplicationEntrypoint.Workers;
 using System.Data.Common;
 using RabbitMQWalkthrough.Core.Infrastructure.Data;
+using RestSharp.Authenticators;
+using RestSharp;
 
 namespace WebApplicationEntrypoint
 {
+
+    /// <remarks>
+    /// As connectionstrings não estão, intencionalmente em arquivos de configuração.
+    /// São diversos componentes que dependem da exata mesma conexão, portanto 
+    /// trocar a senha do Banco, fará o grafana parar.
+    /// Trocar a senha do RabbitMQ fará o coletor de métricas parar.
+    /// </remarks>
     public class Startup
     {
         public Startup(IConfiguration configuration)
         {
             this.Configuration = configuration;
         }
+
+        /// <summary>
+        /// Facilitador: Passe o host a ser usado quando executado com docker-compose, caso esteja no windows, retornará localhost.
+        /// </summary>
+        /// <param name="defaultHost"></param>
+        /// <returns></returns>
+        private static string GetHost(string defaultHost) => System.Environment.OSVersion.Platform == PlatformID.Unix ? defaultHost : "localhost";
+
+
 
         public IConfiguration Configuration { get; }
 
@@ -37,10 +55,10 @@ namespace WebApplicationEntrypoint
 
             services.AddSingleton(sp => new ConnectionFactory()
             {
-                Uri = new Uri("amqp://WalkthroughUser:WalkthroughPassword@rabbitmq/Walkthrough"),
+                Uri = new Uri($"amqp://WalkthroughUser:WalkthroughPassword@{GetHost("rabbitmq")}/Walkthrough"),
                 DispatchConsumersAsync = false,
                 ConsumerDispatchConcurrency = 1,
-                //UseBackgroundThreadsForIO = true
+                UseBackgroundThreadsForIO = false
             });
 
 
@@ -54,15 +72,21 @@ namespace WebApplicationEntrypoint
             //TODO: Atenção
             services.AddTransientWithRetry<SqlConnection, SqlException>(sp =>
             {
-                SqlConnection connection = new SqlConnection("Server=sql,1433;Database=Walkthrough;User Id=WalkthroughUser;Password=WalkthroughPass;MultipleActiveResultSets=true;");
+                SqlConnection connection = new SqlConnection($"Server={GetHost("sql")},1433;Database=Walkthrough;User Id=WalkthroughUser;Password=WalkthroughPass;MultipleActiveResultSets=true;");
                 connection.Open();
                 return connection;
             });
 
 
+
             services.AddSingleton<ConsumerManager>();
             services.AddSingleton<PublisherManager>();
             services.AddSingleton<MetricsService>();
+            services.AddSingleton<RestClient>(sp => new($"http://{GetHost("rabbitmq")}:15672/api")
+            {
+                Authenticator = new HttpBasicAuthenticator("WalkthroughUser", "WalkthroughPassword")
+            });
+
             services.AddSingleton<IMetricCollector, QueueMetricCollector>();
             services.AddSingleton<IMetricCollector, PublisherMetricCollector>();
             services.AddSingleton<IMetricCollector, ConsumerMetricCollector>();
