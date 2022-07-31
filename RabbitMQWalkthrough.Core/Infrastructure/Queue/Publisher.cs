@@ -62,7 +62,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
 
         private void HandlePublish()
         {
-            this.model.ConfirmSelect(); //Ack na publicação.
+            //this.model.ConfirmSelect(); //Ack na publicação.
 
             long count = 0;
             while (this.isRunning)
@@ -89,7 +89,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
                         basicProperties: this.model.CreatePersistentBasicProperties().SetMessageId(Guid.NewGuid().ToString("D")), //Extension Method para criar um basic properties com persistência
                         body: message.Serialize().ToByteArray().ToReadOnlyMemory()); //Extension Method para simplificar a publicação
 
-                    this.model.WaitForConfirmsOrDie(TimeSpan.FromSeconds(5)); //Ack na publicação.
+                    //this.model.WaitForConfirmsOrDie(TimeSpan.FromSeconds(5)); //Ack na publicação.
 
                     transaction.Commit();
                 }
