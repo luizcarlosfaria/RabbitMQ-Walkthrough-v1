@@ -6,15 +6,16 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Npgsql;
 
 namespace RabbitMQWalkthrough.Core.Infrastructure.Metrics
 {
     public class MetricsService
     {
         private readonly IEnumerable<IMetricCollector> metricCollectors;
-        private readonly SqlConnection sqlConnection;
+        private readonly NpgsqlConnection sqlConnection;
 
-        public MetricsService(IEnumerable<IMetricCollector> metricCollectors, SqlConnection sqlConnection)
+        public MetricsService(IEnumerable<IMetricCollector> metricCollectors, NpgsqlConnection sqlConnection)
         {
             this.metricCollectors = metricCollectors;
             this.sqlConnection = sqlConnection;
@@ -41,15 +42,15 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Metrics
 
         private void Store(Metric metric)
         {
-            this.sqlConnection.Execute(@"INSERT INTO [dbo].[Metrics]
-           ([Date]
-           ,[WorkerCount]
-           ,[WorkLoadSize]
-           ,[ConsumerCount]
-           ,[ConsumerThroughput]
-           ,[QueueSize]
-           ,[PublishRate]
-           ,[ConsumeRate])
+            this.sqlConnection.Execute(@"INSERT INTO app.""Metrics""
+           (""Date""
+           ,""WorkerCount""
+           ,""WorkLoadSize""
+           ,""ConsumerCount""
+           ,""ConsumerThroughput""
+           ,""QueueSize""
+           ,""PublishRate""
+           ,""ConsumeRate"")
      VALUES
            (@Date
            ,@WorkerCount

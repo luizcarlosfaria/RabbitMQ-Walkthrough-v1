@@ -7,71 +7,101 @@ services:
     ports:
       - "8877:80" # habilitado visualização no browser
     restart: always
-    depends_on: 
-      - rabbitmq
-      - grafana
-      - sql
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      grafana:
+        condition: service_started
+      postgres:
+        condition: service_healthy
 
   rabbitmq:
     container_name: RabbitMQ
     hostname: rabbitmq
-    build: 
-      context: ./rabbitmq
+    build:
+      context: ./infra/rabbitmq
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq/mnesia
     ports:
       - "15672:15672" #management # habilitado visualização no browser
       #- "15692:15692" #prometheus # desnecessário
-      - "5672:5672"   #amqp       # desnecessário
+      - "5672:5672" #amqp       # desnecessário
     healthcheck:
-      test: ["CMD-SHELL", "curl -I -s -L http://localhost:15672 || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "curl -I -s -L http://localhost:15672 || exit 1"
+        ]
       interval: 30s
       timeout: 20s
-      retries: 5         
+      retries: 5
     networks:
       - walkthrough-net
-#    environment:
-#      RABBITMQ_DEFAULT_USER: WalkthroughUser
-#      RABBITMQ_DEFAULT_PASS: WalkthroughPassword
-#      RABBITMQ_DEFAULT_VHOST: Walkthrough
+  #    environment:
+  #      RABBITMQ_DEFAULT_USER: WalkthroughUser
+  #      RABBITMQ_DEFAULT_PASS: WalkthroughPassword
+  #      RABBITMQ_DEFAULT_VHOST: Walkthrough
 
 
   grafana:
     image: grafana/grafana:8.0.5-ubuntu
-    environment: {
-      "TZ": "America/Sao_Paulo"
-    }
+    container_name: grafana
+    environment: { "TZ": "America/Sao_Paulo" }
     ports:
       - "3000:3000" # habilitado visualização no browser
     volumes:
-      - ./grafana/data/:/var/lib/grafana
+      - ./infra/grafana/:/var/lib/grafana
     networks:
       - walkthrough-net
 
-  sql:
-      image: luizcarlosfaria/mssql-server-linux:2019-latest
-      container_name: SQLServer
-      hostname: mssql
-      environment: {
-        "ACCEPT_EULA" : "Y",
-        "SA_PASSWORD" : "8k3W2C2BVzAW9p",
-        "MSSQL_DATABASE" : "Walkthrough",
-        "MSSQL_DATABASE_COLLATE" : "SQL_Latin1_General_CP1_CI_AI",
-        "MSSQL_USER" : "WalkthroughUser",
-        "MSSQL_PASSWORD" : "WalkthroughPass",
+  postgres:
+    image: postgres:14.4
+    container_name: postgres
+    ports:
+      - 5432:5432
+    environment:
+      {
+        "POSTGRES_DB": "Walkthrough",
+        "POSTGRES_USER": "WalkthroughUser",
+        "POSTGRES_PASSWORD": "WalkthroughPass",
         "TZ": "America/Sao_Paulo"
       }
-      ports: 
-        - 1433:1433 # habilitado para utilização no SSMS ou Data Studio
-      networks:
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "--dbname=Walkthrough",
+          "--username=WalkthroughUser"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
       - walkthrough-net
-      volumes:
-        - sql_data:/var/opt/mssql/data
-        - sql_log:/var/opt/mssql/log
-        - sql_files:/var/opt/mssql/file_tables
-        - ./sql/:/docker-entrypoint-initdb.d/
+    volumes:
+      - "postgres_data:/var/lib/postgresql/data"
+      - ./infra/postgres/:/docker-entrypoint-initdb.d
+
+  pgadmin4:
+    image: dpage/pgadmin4:6.5
+    container_name: pgadmin
+    hostname: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: gago@gago.io
+      PGADMIN_DEFAULT_PASSWORD: WalkthroughPass
+    volumes:
+      - "pgadmin_data:/var/lib/pgadmin/"
+      - "./infra/pgadmin/servers.json:/pgadmin4/servers.json"
+    ports:
+      - "82:80"
+    networks:
+      - walkthrough-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   rabbitmq_data:
-  sql_data:
-  sql_log:
-  sql_files:
+  postgres_data:
+  pgadmin_data:

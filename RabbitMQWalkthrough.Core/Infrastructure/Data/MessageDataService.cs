@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Npgsql;
 using RabbitMQWalkthrough.Core.Model;
 using System;
 using System.Collections.Generic;
@@ -17,33 +18,29 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Data
             
         }
 
-        public Message CreateMessage(SqlTransaction transaction, SqlConnection sqlConnection)
+
+        public Message CreateMessage(NpgsqlTransaction transaction, NpgsqlConnection sqlConnection)
         {
             string sql = @"
-                            INSERT INTO [dbo].[Messages] ([Stored],[Num])  VALUES (GETUTCDATE(),0); 
-                            
-                            SELECT 
-                                [MessageId], 
-                                [Stored], 
-                                [Processed], 
-                                [Num] 
-                            FROM
-                                [dbo].[Messages] 
-                            WHERE 
-                                MessageId = SCOPE_IDENTITY();
+                INSERT INTO app.""Messages"" 
+                    (""Stored"",""Num"") 
+                VALUES 
+                    (now(),0) 
+                RETURNING *; 
                         ";
             Message message = sqlConnection.QuerySingle<Message>(sql, null, transaction);
             return message;
         }
 
-        public void MarkAsProcessed(Message message, SqlConnection sqlConnection, SqlTransaction sqlTransaction)
+        public void MarkAsProcessed(Message message, NpgsqlConnection sqlConnection, NpgsqlTransaction sqlTransaction)
         {
-            string sql = @"UPDATE [dbo].[Messages] 
+            string sql = @"UPDATE app.""Messages""
                             SET 
-                                [Processed] = GETUTCDATE(), 
-                                [Num] = [Num]+1 
+                                ""Processed"" = now(), 
+                                ""TimeSpent"" = now() - ""Stored"",
+                                ""Num"" = ""Num"" + 1 
                             WHERE 
-                                [MessageId] = @MessageId;";
+                                ""MessageId"" = @MessageId ; ";
             
             sqlConnection.Execute(sql, message, sqlTransaction);
 

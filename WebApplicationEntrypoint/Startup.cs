@@ -20,6 +20,8 @@ using System.Data.Common;
 using RabbitMQWalkthrough.Core.Infrastructure.Data;
 using RestSharp.Authenticators;
 using RestSharp;
+using Npgsql;
+using Microsoft.AspNetCore.Hosting.Server;
 
 namespace WebApplicationEntrypoint
 {
@@ -70,13 +72,12 @@ namespace WebApplicationEntrypoint
 
 
             //TODO: Atenção
-            services.AddTransientWithRetry<SqlConnection, SqlException>(sp =>
+            services.AddTransientWithRetry<NpgsqlConnection, NpgsqlException>(sp =>
             {
-                SqlConnection connection = new SqlConnection($"Server={GetHost("sql")},1433;Database=Walkthrough;User Id=WalkthroughUser;Password=WalkthroughPass;MultipleActiveResultSets=true;");
+                NpgsqlConnection connection = new ($"Server={GetHost("postgres")};Port=5432;Database=Walkthrough;User Id=WalkthroughUser;Password=WalkthroughPass;");
                 connection.Open();
                 return connection;
             });
-
 
 
             services.AddSingleton<ConsumerManager>();

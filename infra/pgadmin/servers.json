@@ -1,0 +1,13 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "RabbitMQ-Walkthrough",
+            "Group": "gago-io",
+            "Host": "postgres",
+            "Port": 5432,
+            "Username": "WalkthroughUser",
+            "SSLMode": "prefer",
+            "MaintenanceDB": "postgres"
+        }
+    }
+}

@@ -1,6 +1,7 @@
 ﻿
 using Dapper;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQWalkthrough.Core.Infrastructure;
@@ -26,7 +27,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
     {
         private readonly IModel model;
         private readonly IConnection rabbitMqConnection;
-        private readonly SqlConnection sqlConnection;
+        private readonly NpgsqlConnection sqlConnection;
         private readonly MessageDataService messageDataService;
         private readonly ILogger<Publisher> logger;
         private string exchange;
@@ -40,7 +41,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
 
         public string Id { get; }
 
-        public Publisher(IModel model, IConnection rabbitMqConnection, SqlConnection sqlConnection, MessageDataService messageDataService, ILogger<Publisher> logger)
+        public Publisher(IModel model, IConnection rabbitMqConnection, NpgsqlConnection sqlConnection, MessageDataService messageDataService, ILogger<Publisher> logger)
         {
             this.model = model;
             this.rabbitMqConnection = rabbitMqConnection;

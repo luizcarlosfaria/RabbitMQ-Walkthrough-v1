@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQWalkthrough.Core.Infrastructure;
@@ -21,7 +22,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
         private readonly IModel model;
         private readonly IConnection connection;
         private readonly ILogger<Consumer> logger;
-        private readonly SqlConnection sqlConnection;
+        private readonly NpgsqlConnection sqlConnection;
         private readonly MessageDataService messageDataService;
         private string queue;
         private EventingBasicConsumer eventingBasicConsumer;
@@ -33,7 +34,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
 
         public string Id { get; }
 
-        public Consumer(IModel model, IConnection connection, ILogger<Consumer> logger, SqlConnection sqlConnection, MessageDataService messageDataService)
+        public Consumer(IModel model, IConnection connection, ILogger<Consumer> logger, NpgsqlConnection sqlConnection, MessageDataService messageDataService)
         {
             this.model = model;
             this.connection = connection;

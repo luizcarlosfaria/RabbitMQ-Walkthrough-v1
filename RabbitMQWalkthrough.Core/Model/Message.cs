@@ -8,7 +8,7 @@ namespace RabbitMQWalkthrough.Core.Model
 {
     public class Message
     {
-        public string MessageId { get; set; }
+        public int MessageId { get; set; }
 
 
         /// <summary>
