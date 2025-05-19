@@ -37,6 +37,8 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
 
         public int MessagesPerSecond { get; private set; }
 
+        public TimeSpan TimeToWait { get; private set; }
+
         private bool isInitialized;
 
         public string Id { get; }
@@ -58,6 +60,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
             if (this.isInitialized) throw new InvalidOperationException("Initialize só pode ser chamado uma vez");
             this.exchange = exchange;
             this.MessagesPerSecond = messagesPerSecond;
+            this.TimeToWait = messagesPerSecond == 0 ? TimeSpan.Zero : this.MessagesPerSecond.AsMessageRateToSleepTimeSpan();
             this.isInitialized = true;
         }
 
@@ -69,7 +72,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
             while (this.isRunning)
             {
                 if (this.MessagesPerSecond != 0)
-                    this.MessagesPerSecond.AsMessageRateToSleepTimeSpan().Wait();
+                    this.TimeToWait.Wait();
 
                 count++;
 

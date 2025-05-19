@@ -5,6 +5,7 @@ using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,11 +20,25 @@ namespace RabbitMQWalkthrough.Core.Infrastructure
             if (messagesPerSecond < 1)
                 throw new ArgumentOutOfRangeException(nameof(messagesPerSecond));
 
+            long ticksPerSecond = TimeSpan.FromSeconds(1).Ticks;
 
-            int sleepTimer = 1000 / messagesPerSecond;
+            //int factor = Convert.ToInt32(TimeSpan.FromMilliseconds(messagesPerSecond).Ticks * 0.005);
+            //int sleepTimer = Convert.ToInt32((ticksPerSecond / messagesPerSecond) - factor);
+    
 
 
-            return TimeSpan.FromMilliseconds(sleepTimer);
+            int sleepTimer = Convert.ToInt32((ticksPerSecond / messagesPerSecond) - (messagesPerSecond / 12 ));
+            // Algorithm accuracy
+            //Publish 10 m/s = 98% | 100 m/s = 96% | 500 m/s = 87% |  
+            //Consume 10 m/s = 98% | 100 m/s = 94% | 500 m/s = 78% |  
+
+            //int sleepTimer = Convert.ToInt32(ticksPerSecond / messagesPerSecond);
+            //Algorithm accuracy
+            //Publish 10 m/s = 98% | 100 m/s = 88% | 500 m/s = 61% |  
+            //Consume 10 m/s = 98% | 100 m/s = 87% | 500 m/s = 54% |  
+
+
+            return TimeSpan.FromTicks(Math.Max(sleepTimer, 0));
         }
 
         public static IServiceCollection AddTransientWithRetry<TService, TKnowException>(this IServiceCollection services, Func<IServiceProvider, TService> implementationFactory)

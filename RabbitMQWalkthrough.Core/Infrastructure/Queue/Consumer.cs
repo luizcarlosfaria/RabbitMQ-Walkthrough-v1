@@ -31,7 +31,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
 
         public string ConsumerTag { get; private set; }
         public int MessagesPerSecond { get; private set; }
-
+        public TimeSpan TimeToWait { get; private set; }
         public string Id { get; }
 
         public Consumer(IChannel channel, IConnection connection, ILogger<Consumer> logger, NpgsqlConnection sqlConnection, MessageDataService messageDataService)
@@ -51,6 +51,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
             if (this.isInitialized) throw new InvalidOperationException("Initialize só pode ser chamado uma vez");
             this.queue = queue;
             this.MessagesPerSecond = messagesPerSecond;
+            this.TimeToWait = messagesPerSecond == 0 ? TimeSpan.Zero : this.MessagesPerSecond.AsMessageRateToSleepTimeSpan();
             this.isInitialized = true;
         }
 
@@ -69,7 +70,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
                 return;
             }
             if (this.MessagesPerSecond != 0)
-                this.MessagesPerSecond.AsMessageRateToSleepTimeSpan().Wait();
+                this.TimeToWait.Wait();
 
             Message message = null;
 
