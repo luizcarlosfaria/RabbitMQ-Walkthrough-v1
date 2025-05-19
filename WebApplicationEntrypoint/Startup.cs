@@ -22,6 +22,8 @@ using RestSharp.Authenticators;
 using RestSharp;
 using Npgsql;
 using Microsoft.AspNetCore.Hosting.Server;
+using RestSharp.Serializers.Json;
+using RestSharp.Serializers.NewtonsoftJson;
 
 namespace WebApplicationEntrypoint
 {
@@ -58,17 +60,15 @@ namespace WebApplicationEntrypoint
             services.AddSingleton(sp => new ConnectionFactory()
             {
                 Uri = new Uri($"amqp://WalkthroughUser:WalkthroughPassword@{GetHost("rabbitmq")}/Walkthrough"),
-                DispatchConsumersAsync = false,
-                ConsumerDispatchConcurrency = 1,
-                UseBackgroundThreadsForIO = false
+                ConsumerDispatchConcurrency = 1,                
             });
 
 
             //TODO: Atenção
-            services.AddTransientWithRetry<IConnection, BrokerUnreachableException>(sp => sp.GetRequiredService<ConnectionFactory>().CreateConnection());
+            services.AddTransientWithRetry<IConnection, BrokerUnreachableException>(sp => sp.GetRequiredService<ConnectionFactory>().CreateConnectionAsync().GetAwaiter().GetResult());
 
             //TODO: Atenção
-            services.AddTransient(sp => sp.GetRequiredService<IConnection>().CreateModel());
+            services.AddTransient(sp => sp.GetRequiredService<IConnection>().CreateChannelAsync().GetAwaiter().GetResult());
 
 
             //TODO: Atenção
@@ -83,10 +83,14 @@ namespace WebApplicationEntrypoint
             services.AddSingleton<ConsumerManager>();
             services.AddSingleton<PublisherManager>();
             services.AddSingleton<MetricsService>();
-            services.AddSingleton<RestClient>(sp => new($"http://{GetHost("rabbitmq")}:15672/api")
-            {
+            services.AddSingleton<RestClientOptions>(sp => new($"http://{GetHost("rabbitmq")}:15672/api")
+            { 
                 Authenticator = new HttpBasicAuthenticator("WalkthroughUser", "WalkthroughPassword")
             });
+            services.AddSingleton<RestClient>(sp => new RestClient(
+                    sp.GetRequiredService<RestClientOptions>(), 
+                    configureSerialization: it => it.UseNewtonsoftJson()
+                ));
 
             services.AddSingleton<IMetricCollector, QueueMetricCollector>();
             services.AddSingleton<IMetricCollector, PublisherMetricCollector>();
@@ -136,11 +140,11 @@ namespace WebApplicationEntrypoint
 
         private static void InitRabbitMQ(IServiceProvider applicationServices)
         {
-            using var rabbitMQChannel = applicationServices.GetRequiredService<IModel>();
+            using var rabbitMQChannel = applicationServices.GetRequiredService<IChannel>();
 
-            rabbitMQChannel.QueueDeclare("test_queue", true, false, false);
-            rabbitMQChannel.ExchangeDeclare("test_exchange", "fanout", true, false);
-            rabbitMQChannel.QueueBind("test_queue", "test_exchange", string.Empty);
+            rabbitMQChannel.QueueDeclareAsync("test_queue", true, false, false).GetAwaiter().GetResult();
+            rabbitMQChannel.ExchangeDeclareAsync("test_exchange", "fanout", true, false).GetAwaiter().GetResult();
+            rabbitMQChannel.QueueBindAsync("test_queue", "test_exchange", string.Empty).GetAwaiter().GetResult();
         }
     }
 }

@@ -23,9 +23,9 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Data
 
         public void RunUnderTransaction(Action<IServiceProvider> action)
         {
-            using var scope = this.serviceProvider.CreateScope();
+            using IServiceScope scope = this.serviceProvider.CreateScope();
             
-            using var transaction = scope.ServiceProvider.GetRequiredService<SqlTransaction>();
+            using SqlTransaction transaction = scope.ServiceProvider.GetRequiredService<SqlTransaction>();
             try
             {
                 action(scope.ServiceProvider);

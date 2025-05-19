@@ -10,32 +10,32 @@ namespace RabbitMQWalkthrough.Core.Infrastructure
 {
     public static partial class Extensions
     {
-        public static IBasicProperties CreatePersistentBasicProperties(this IModel model) => model.CreateBasicProperties().SetDeliveryMode(2);
+        public static BasicProperties CreatePersistentBasicProperties(this IChannel channel) => new BasicProperties().SetDeliveryMode(DeliveryModes.Persistent);
 
-        public static IBasicProperties SetMessageId(this IBasicProperties prop, string messageId)
+        public static BasicProperties SetMessageId(this BasicProperties prop, string messageId)
         {
             prop.MessageId = messageId;
             return prop;
         }
 
-        public static IBasicProperties SetCorrelationId(this IBasicProperties prop, string correlationId)
+        public static BasicProperties SetCorrelationId(this BasicProperties prop, string correlationId)
         {
             prop.CorrelationId = correlationId;
             return prop;
         }
 
 
-        public static IBasicProperties SetDeliveryMode(this IBasicProperties prop, byte deliveryMode)
+        public static BasicProperties SetDeliveryMode(this BasicProperties prop, DeliveryModes deliveryMode)
         {
             prop.DeliveryMode = deliveryMode;
 
             return prop;
         }
 
-        public static IModel SetPrefetchCount(this IModel model, ushort prefetchCount)
+        public static async Task<IChannel> SetPrefetchCountAsync(this IChannel channel, ushort prefetchCount)
         {
-            model.BasicQos(0, prefetchCount, false);
-            return model;
+            await channel.BasicQosAsync(0, prefetchCount, false);
+            return channel;
         }
 
 

@@ -5,6 +5,7 @@ using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
 {
@@ -23,18 +24,18 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
 
         private object syncLock = new();
 
-        public void AddConsumer(int size, int messagesPerSecond)
+        public async Task AddConsumerAsync(int size, int messagesPerSecond)
         {
             if (size > 0)
-                for (var i = 1; i <= size; i++)
+                for (int i = 1; i <= size; i++)
                 {
-                    var consumer = this.serviceProvider.GetRequiredService<Consumer>();
+                    Consumer consumer = this.serviceProvider.GetRequiredService<Consumer>();
                     consumer.Initialize("test_queue", messagesPerSecond);
                     lock (this.syncLock)
                     {
                         this.consumers.Add(consumer);
                     }
-                    consumer.Start();
+                    await consumer.StartAsync();
                 }
         }
 
@@ -44,7 +45,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
             {
                 lock (this.syncLock)
                 {
-                    var consumer = this.consumers.SingleOrDefault(it => it.Id == id);
+                    Consumer consumer = this.consumers.SingleOrDefault(it => it.Id == id);
                     if (consumer != null)
                     {
                         this.consumers.Remove(consumer);

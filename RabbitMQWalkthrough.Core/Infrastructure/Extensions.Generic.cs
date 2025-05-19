@@ -20,7 +20,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure
                 throw new ArgumentOutOfRangeException(nameof(messagesPerSecond));
 
 
-            var sleepTimer = 1000 / messagesPerSecond;
+            int sleepTimer = 1000 / messagesPerSecond;
 
 
             return TimeSpan.FromMilliseconds(sleepTimer);

@@ -20,9 +20,9 @@ namespace WebApplicationEntrypoint.Controllers
         }
 
         [HttpPut]
-        public void AddConsumer([FromQuery] int size, [FromQuery] int messagesPerSecond)
+        public async Task AddConsumerAsync([FromQuery] int size, [FromQuery] int messagesPerSecond)
         {
-            this.consumerManager.AddConsumer(size, messagesPerSecond);
+            await this.consumerManager.AddConsumerAsync(size, messagesPerSecond);
         }
 
        

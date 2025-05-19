@@ -1,4 +1,4 @@
-FROM rabbitmq:3.10.6-management-alpine
+FROM rabbitmq:4-management-alpine
 
 RUN apk add curl
 

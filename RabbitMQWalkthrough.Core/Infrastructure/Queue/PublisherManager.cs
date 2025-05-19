@@ -26,9 +26,9 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
         public void AddPublisher(int size, int messagesPerSecond)
         {
             if (size > 0)
-                for (var i = 1; i <= size; i++)
+                for (int i = 1; i <= size; i++)
                 {
-                    var publisher = this.serviceProvider.GetRequiredService<Publisher>();
+                    Publisher publisher = this.serviceProvider.GetRequiredService<Publisher>();
 
                     publisher.Initialize("test_exchange", messagesPerSecond);
 
@@ -49,7 +49,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
             {
                 lock (this.syncLock)
                 {
-                    var publisher = this.publishers.SingleOrDefault(it => it.Id == id);
+                    Publisher publisher = this.publishers.SingleOrDefault(it => it.Id == id);
                     if (publisher != null)
                     {
                         this.publishers.Remove(publisher);

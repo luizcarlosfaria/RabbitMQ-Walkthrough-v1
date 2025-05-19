@@ -16,10 +16,12 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Metrics.Collectors
             this.consumerManager = consumerManager;
         }
 
-        public void CollectAndSet(Metric metric)
+        public Task CollectAndSetAsync(Metric metric)
         {
             metric.ConsumerCount = this.consumerManager.Consumers.Count();
             metric.ConsumerThroughput = this.consumerManager.Consumers.Sum(it => it.MessagesPerSecond);
+
+            return Task.CompletedTask;
         }
     }
 }

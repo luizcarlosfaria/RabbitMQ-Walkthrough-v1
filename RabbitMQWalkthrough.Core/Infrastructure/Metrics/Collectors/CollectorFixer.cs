@@ -14,7 +14,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Metrics.Collectors
 
         int zeroMetrics = 0;
 
-        public void CollectAndSet(Metric metric)
+        public Task CollectAndSetAsync(Metric metric)
         {
             bool hasMetric = (metric.PublishRate + metric.ConsumeRate > 0);
 
@@ -32,7 +32,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Metrics.Collectors
                 metric.ConsumeRate = this.lastValidConsumeRate;
             }
 
-
+            return Task.CompletedTask;
         }
 
 

@@ -22,10 +22,10 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Metrics
         }
 
 
-        public void CollectAndStore() => this.Store(this.Collect());
+        public async Task CollectAndStoreAsync() => await this.StoreAsync(await this.CollectAsync());
         
 
-        private Metric Collect()
+        private async Task<Metric> CollectAsync()
         {
             Metric metric = new()
             {
@@ -34,15 +34,15 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Metrics
 
             foreach (IMetricCollector metricCollector in this.metricCollectors)
             {
-                metricCollector.CollectAndSet(metric);
+                await metricCollector.CollectAndSetAsync(metric);
             }
 
             return metric;
         }
 
-        private void Store(Metric metric)
+        private async Task StoreAsync(Metric metric)
         {
-            this.sqlConnection.Execute(@"INSERT INTO app.""Metrics""
+            await this.sqlConnection.ExecuteAsync(@"INSERT INTO app.""Metrics""
            (""Date""
            ,""WorkerCount""
            ,""WorkLoadSize""

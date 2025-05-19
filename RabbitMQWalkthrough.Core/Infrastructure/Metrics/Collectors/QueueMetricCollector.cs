@@ -25,11 +25,11 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Metrics.Collectors
         }
 
 
-        public void CollectAndSet(Metric metric)
+        public async Task CollectAndSetAsync(Metric metric)
         {
             try
             {
-                var metrics = this.GetRawMetrics();
+                QueueMetrics metrics = await this.GetRawMetricsAsync();
 
                 metric.QueueSize = metrics.Messages;
                 metric.PublishRate = metrics.MessageStats?.PublishDetails?.Rate ?? 0;
@@ -45,16 +45,13 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Metrics.Collectors
 
 
 
-        private QueueMetrics GetRawMetrics()
+        private async Task<QueueMetrics> GetRawMetricsAsync()
         {
-            RestRequest request = new(resource: "/queues/Walkthrough/test_queue", DataFormat.Json);
+            RestRequest request = new(resource: "/queues/Walkthrough/test_queue");
 
-            var response = client.Get<QueueMetrics>(request);
+            QueueMetrics response = await client.GetAsync<QueueMetrics>(request);
 
-            if (response.IsSuccessful)
-                return response.Data;
-            else
-                throw new InvalidOperationException(response.ErrorMessage);
+            return response;
         }
 
         #region Model

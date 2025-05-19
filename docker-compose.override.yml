@@ -5,7 +5,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
-      - "8877:80" # habilitado visualização no browser
+      - "8877:8080" # habilitado visualização no browser
     restart: always
     depends_on:
       rabbitmq:

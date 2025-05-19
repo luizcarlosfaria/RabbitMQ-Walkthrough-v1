@@ -16,10 +16,12 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Metrics.Collectors
             this.publisherManager = publisherManager;
         }
 
-        public void CollectAndSet(Metric metric)
+        public Task CollectAndSetAsync(Metric metric)
         {
             metric.WorkerCount = this.publisherManager.Publishers.Count();
             metric.WorkLoadSize = this.publisherManager.Publishers.Sum(it => it.MessagesPerSecond);
+
+            return Task.CompletedTask;
         }
     }
 }

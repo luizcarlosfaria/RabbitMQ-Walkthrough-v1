@@ -28,7 +28,7 @@ namespace WebApplicationEntrypoint.Workers
                 try
                 {
 
-                    this.metricsService.CollectAndStore();
+                    this.metricsService.CollectAndStoreAsync();
                     await Task.Delay(1000, stoppingToken);
                 }
                 catch (OperationCanceledException)

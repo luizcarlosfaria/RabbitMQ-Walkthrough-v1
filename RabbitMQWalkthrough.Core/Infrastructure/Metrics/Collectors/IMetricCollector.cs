@@ -8,6 +8,6 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Metrics.Collectors
 {
     public interface IMetricCollector
     {
-        void CollectAndSet(Metric metric);
+        Task CollectAndSetAsync(Metric metric);
     }
 }

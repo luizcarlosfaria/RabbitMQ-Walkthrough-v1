@@ -25,7 +25,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
     /// </summary>
     public class Publisher
     {
-        private readonly IModel model;
+        private readonly IChannel channel;
         private readonly IConnection rabbitMqConnection;
         private readonly NpgsqlConnection sqlConnection;
         private readonly MessageDataService messageDataService;
@@ -41,16 +41,16 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
 
         public string Id { get; }
 
-        public Publisher(IModel model, IConnection rabbitMqConnection, NpgsqlConnection sqlConnection, MessageDataService messageDataService, ILogger<Publisher> logger)
+        public Publisher(IChannel channel, IConnection rabbitMqConnection, NpgsqlConnection sqlConnection, MessageDataService messageDataService, ILogger<Publisher> logger)
         {
-            this.model = model;
+            this.channel = channel;
             this.rabbitMqConnection = rabbitMqConnection;
             this.sqlConnection = sqlConnection;
             this.messageDataService = messageDataService;
             this.logger = logger;
             this.Id = Guid.NewGuid().ToString("D");
 
-            this.runThread = new Thread(this.HandlePublish);
+            this.runThread = new Thread(this.HandlePublishAsync);
         }
 
         public void Initialize(string exchange, int messagesPerSecond)
@@ -61,9 +61,9 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
             this.isInitialized = true;
         }
 
-        private void HandlePublish()
+        private void HandlePublishAsync()
         {
-            //this.model.ConfirmSelect(); //Ack na publicação.
+            //this.channel.ConfirmSelect(); //Ack na publicação.
 
             long count = 0;
             while (this.isRunning)
@@ -74,7 +74,7 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
                 count++;
 
                 //Esse controle transacional deveria ser abstraído
-                using var transaction = this.sqlConnection.BeginTransaction();
+                using NpgsqlTransaction transaction = this.sqlConnection.BeginTransaction();
                 try
                 {
                     //Thread.Sleep(TimeSpan.FromMilliseconds(100));
@@ -83,14 +83,14 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
                     Message message = this.messageDataService.CreateMessage(transaction, this.sqlConnection);
                     //fim
 
-                    this.model.BasicPublish(
+                    this.channel.BasicPublishAsync(
                         exchange: this.exchange,
                         routingKey: string.Empty,
                         mandatory: true,
-                        basicProperties: this.model.CreatePersistentBasicProperties().SetMessageId(Guid.NewGuid().ToString("D")), //Extension Method para criar um basic properties com persistência
-                        body: message.Serialize().ToByteArray().ToReadOnlyMemory()); //Extension Method para simplificar a publicação
+                        basicProperties: this.channel.CreatePersistentBasicProperties().SetMessageId(Guid.NewGuid().ToString("D")), //Extension Method para criar um basic properties com persistência
+                        body: message.Serialize().ToByteArray().ToReadOnlyMemory()).GetAwaiter().GetResult(); //Extension Method para simplificar a publicação
 
-                    //this.model.WaitForConfirmsOrDie(TimeSpan.FromSeconds(5)); //Ack na publicação.
+                    //this.channel.WaitForConfirmsOrDie(TimeSpan.FromSeconds(5)); //Ack na publicação.
 
                     transaction.Commit();
                 }
@@ -103,11 +103,11 @@ namespace RabbitMQWalkthrough.Core.Infrastructure.Queue
 
             //se chegamos aqui, nosso worker foi parado.
 
-            this.model.Close();
+            this.channel.CloseAsync().GetAwaiter().GetResult();
 
-            this.model.Dispose();
+            this.channel.Dispose();
 
-            this.rabbitMqConnection.Close();
+            this.rabbitMqConnection.CloseAsync().GetAwaiter().GetResult();
 
             this.rabbitMqConnection.Dispose();
 
